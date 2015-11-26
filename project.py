@@ -59,9 +59,9 @@ def main(args):
     print 'Please enter the date you would like to return on.'
     while(True):
         returndate = parse(
-            raw_input('Form: Month Day Year (e.g. "December 8 2015")\n'), fuzzy=True)
-        if returndate < datetime.datetime.now() or returndate > (datetime.datetime.now() + datetime.timedelta(192)):
-            print 'You must enter a date in the future that is no more than 192 days from now.'
+            raw_input('Form: Month Day Year (e.g. "December 10 2015")\n'), fuzzy=True)
+        if returndate < datetime.datetime.now() or returndate > (datetime.datetime.now() + datetime.timedelta(192)) or returndate < departdate:
+            print 'You must enter a date after your departure that is no more than 192 days from now.'
         else:
             correct = raw_input('OK, so you want to return on %s? (Y/N)\n' %
                                 returndate.strftime('%A, %B %d, %Y'))
@@ -133,9 +133,13 @@ def gettoken():
 
 
 def calculatemidpoint(originA, originB, departdate, returndate):
+
     # first throw the query through the destinations engine
     print 'Querying the server about %s.' % originA
-    destinations(originA, departdate, returndate)
+    resultsA = destinations(originA, departdate, returndate)
+    fileA = open(results.json, 'w')
+    fileA.truncate()
+    fileA.write(resultsA)
 
 
 def destinations(query, departdate, returndate):
@@ -155,7 +159,7 @@ def destinations(query, departdate, returndate):
     }
     r = requests.get(url, headers=header, params=params)
     data = r.json()
-    print json.dumps(data, indent=4)
+    return data
 
 if __name__ == "__main__":
     # clear terminal
