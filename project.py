@@ -43,7 +43,8 @@ def main(args):
     # clear terminal
     os.system('cls' if os.name == 'nt' else 'clear')
 
-    # figure out date of trip
+    # figure out arrival/return dates of trip
+    '''
     print 'Please enter the date you would like to meet on.'
     while(True):
         departdate = parse(
@@ -67,7 +68,9 @@ def main(args):
                                 returndate.strftime('%A, %B %d, %Y'))
             if correct.lower() == 'y':
                 break
-
+    '''
+    departdate = parse('december 8 2015')
+    returndate = parse('december 10 2015')
     # clear terminal
     os.system('cls' if os.name == 'nt' else 'clear')
     print 'Working on your trip between %s and %s, departing on %s and returning on %s.' % (originA, originB, departdate.strftime('%b %d, %Y'), returndate.strftime('%b %d, %Y'))
@@ -137,9 +140,11 @@ def calculatemidpoint(originA, originB, departdate, returndate):
     # first throw the query through the destinations engine
     print 'Querying the server about %s.' % originA
     resultsA = destinations(originA, departdate, returndate)
-    fileA = open(results.json, 'w')
+    fileA = open('./results.json', 'w')
     fileA.truncate()
-    fileA.write(resultsA)
+    fileA.close()
+    with open('./results.json', 'w') as outfile:
+        json.dump(resultsA, outfile)
 
 
 def destinations(query, departdate, returndate):

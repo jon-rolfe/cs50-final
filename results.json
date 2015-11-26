@@ -1,0 +1,733 @@
+{
+  "FareInfo": [{
+    "LowestFare": {
+      "Fare": 176.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Distance": 947,
+    "LowestNonStopFare": {
+      "Fare": 176.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=BOS&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "BOS",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.19
+  }, {
+    "LowestFare": {
+      "Fare": 126.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Distance": 578,
+    "LowestNonStopFare": {
+      "Fare": 126.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=BWI&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "BWI",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.22
+  }, {
+    "LowestFare": {
+      "Fare": 346.63,
+      "AirlineCodes": ["NK"]
+    },
+    "Distance": 873,
+    "LowestNonStopFare": {
+      "Fare": 390.03,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=CUN&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "CUN",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.4
+  }, {
+    "LowestFare": {
+      "Fare": 213.2,
+      "AirlineCodes": ["UA"]
+    },
+    "Distance": 541,
+    "LowestNonStopFare": {
+      "Fare": 216.2,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=DCA&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "DCA",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.39
+  }, {
+    "LowestFare": {
+      "Fare": 138,
+      "AirlineCodes": ["F9"]
+    },
+    "Distance": 1207,
+    "LowestNonStopFare": {
+      "Fare": 138,
+      "AirlineCodes": ["F9"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=DEN&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "DEN",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.11
+  }, {
+    "LowestFare": {
+      "Fare": 80.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Distance": 725,
+    "LowestNonStopFare": {
+      "Fare": 80.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=DFW&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "DFW",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.11
+  }, {
+    "LowestFare": {
+      "Fare": 131.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Distance": 604,
+    "LowestNonStopFare": {
+      "Fare": 131.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=DTW&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "DTW",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.22
+  }, {
+    "LowestFare": {
+      "Fare": 196.2,
+      "AirlineCodes": ["UA"]
+    },
+    "Distance": 756,
+    "LowestNonStopFare": {
+      "Fare": 196.2,
+      "AirlineCodes": ["UA"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=EWR&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "EWR",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.26
+  }, {
+    "LowestFare": {
+      "Fare": 90,
+      "AirlineCodes": ["NK"]
+    },
+    "Distance": 582,
+    "LowestNonStopFare": {
+      "Fare": 90,
+      "AirlineCodes": ["NK"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=FLL&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "FLL",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.15
+  }, {
+    "LowestFare": {
+      "Fare": 232.2,
+      "AirlineCodes": ["DL"]
+    },
+    "Distance": 691,
+    "LowestNonStopFare": {
+      "Fare": 232.2,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=HOU&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "HOU",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.34
+  }, {
+    "LowestFare": {
+      "Fare": 96.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Distance": 691,
+    "LowestNonStopFare": {
+      "Fare": 96.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=IAH&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "IAH",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.14
+  }, {
+    "LowestFare": {
+      "Fare": 220.2,
+      "AirlineCodes": ["AA"]
+    },
+    "Distance": 434,
+    "LowestNonStopFare": {
+      "Fare": 342.2,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=IND&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "IND",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.51
+  }, {
+    "LowestFare": {
+      "Fare": 217.2,
+      "AirlineCodes": ["AA"]
+    },
+    "Distance": 276,
+    "LowestNonStopFare": {
+      "Fare": 236.2,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=JAX&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "JAX",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.79
+  }, {
+    "LowestFare": {
+      "Fare": 117.98,
+      "AirlineCodes": ["F9"]
+    },
+    "Distance": 1735,
+    "LowestNonStopFare": {
+      "Fare": 117.98,
+      "AirlineCodes": ["F9"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=LAS&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "LAS",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.07
+  }, {
+    "LowestFare": {
+      "Fare": 116.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Distance": 1943,
+    "LowestNonStopFare": {
+      "Fare": 116.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=LAX&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "LAX",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.06
+  }, {
+    "LowestFare": {
+      "Fare": 78,
+      "AirlineCodes": ["F9"]
+    },
+    "Distance": 756,
+    "LowestNonStopFare": {
+      "Fare": 78,
+      "AirlineCodes": ["F9"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=LGA&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "LGA",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.1
+  }, {
+    "LowestFare": {
+      "Fare": 1470.8,
+      "AirlineCodes": ["KL"]
+    },
+    "Distance": 4218,
+    "LowestNonStopFare": {
+      "Fare": 2771.4,
+      "AirlineCodes": ["VS"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=LHR&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "LHR",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.35
+  }, {
+    "LowestFare": {
+      "Fare": 421.45,
+      "AirlineCodes": ["AA"]
+    },
+    "Distance": 1120,
+    "LowestNonStopFare": {
+      "Fare": 701.85,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=MBJ&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "MBJ",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.38
+  }, {
+    "LowestFare": {
+      "Fare": 70,
+      "AirlineCodes": ["F9"]
+    },
+    "Distance": 397,
+    "LowestNonStopFare": {
+      "Fare": 70,
+      "AirlineCodes": ["F9"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=MCO&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "MCO",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.18
+  }, {
+    "LowestFare": {
+      "Fare": 156.2,
+      "AirlineCodes": ["DL"]
+    },
+    "Distance": 600,
+    "LowestNonStopFare": {
+      "Fare": 156.2,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=MDW&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "MDW",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.26
+  }, {
+    "LowestFare": {
+      "Fare": 446.21,
+      "AirlineCodes": ["AA"]
+    },
+    "Distance": 1345,
+    "LowestNonStopFare": {
+      "Fare": 955.61,
+      "AirlineCodes": ["AM"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=MEX&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "MEX",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.33
+  }, {
+    "LowestFare": {
+      "Fare": 97.09,
+      "AirlineCodes": ["F9"]
+    },
+    "Distance": 596,
+    "LowestNonStopFare": {
+      "Fare": 97.09,
+      "AirlineCodes": ["F9"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=MIA&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "MIA",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.16
+  }, {
+    "LowestFare": {
+      "Fare": 259.19,
+      "AirlineCodes": ["UA"]
+    },
+    "Distance": 908,
+    "LowestNonStopFare": {
+      "Fare": 282.19,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=MSP&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "MSP",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.29
+  }, {
+    "LowestFare": {
+      "Fare": 58,
+      "AirlineCodes": ["F9"]
+    },
+    "Distance": 419,
+    "LowestNonStopFare": {
+      "Fare": 58,
+      "AirlineCodes": ["F9"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=MSY&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "MSY",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.14
+  }, {
+    "LowestFare": {
+      "Fare": 376.1,
+      "AirlineCodes": ["AA"]
+    },
+    "Distance": 727,
+    "LowestNonStopFare": {
+      "Fare": 688.5,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=NAS&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "NAS",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.52
+  }, {
+    "LowestFare": {
+      "Fare": 78,
+      "AirlineCodes": ["F9"]
+    },
+    "Distance": 600,
+    "LowestNonStopFare": {
+      "Fare": 78,
+      "AirlineCodes": ["F9"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=ORD&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "ORD",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.13
+  }, {
+    "LowestFare": {
+      "Fare": 186.2,
+      "AirlineCodes": ["DL"]
+    },
+    "Distance": 546,
+    "LowestNonStopFare": {
+      "Fare": 186.2,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=PBI&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "PBI",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.34
+  }, {
+    "LowestFare": {
+      "Fare": 68,
+      "AirlineCodes": ["F9"]
+    },
+    "Distance": 667,
+    "LowestNonStopFare": {
+      "Fare": 68,
+      "AirlineCodes": ["F9"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=PHL&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "PHL",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.1
+  }, {
+    "LowestFare": {
+      "Fare": 253.48,
+      "AirlineCodes": ["F9"]
+    },
+    "Distance": 1584,
+    "LowestNonStopFare": {
+      "Fare": 320.2,
+      "AirlineCodes": ["AA"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=PHX&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "PHX",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.16
+  }, {
+    "LowestFare": {
+      "Fare": 403.6,
+      "AirlineCodes": ["DL"]
+    },
+    "Distance": 1437,
+    "LowestNonStopFare": {
+      "Fare": 403.6,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=PUJ&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "PUJ",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.28
+  }, {
+    "LowestFare": {
+      "Fare": 220.2,
+      "AirlineCodes": ["AA"]
+    },
+    "Distance": 356,
+    "LowestNonStopFare": {
+      "Fare": 236.2,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=RDU&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "RDU",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.62
+  }, {
+    "LowestFare": {
+      "Fare": 298.7,
+      "AirlineCodes": ["UA"]
+    },
+    "Distance": 1888,
+    "LowestNonStopFare": {
+      "Fare": 419.2,
+      "AirlineCodes": ["UA", "DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=SAN&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "SAN",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.16
+  }, {
+    "LowestFare": {
+      "Fare": 277.2,
+      "AirlineCodes": ["UA"]
+    },
+    "Distance": 873,
+    "LowestNonStopFare": {
+      "Fare": 290.2,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=SAT&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "SAT",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.32
+  }, {
+    "LowestFare": {
+      "Fare": 312.2,
+      "AirlineCodes": ["AS"]
+    },
+    "Distance": 2178,
+    "LowestNonStopFare": {
+      "Fare": 312.2,
+      "AirlineCodes": ["AS"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=SEA&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "SEA",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.14
+  }, {
+    "LowestFare": {
+      "Fare": 278,
+      "AirlineCodes": ["F9"]
+    },
+    "Distance": 2135,
+    "LowestNonStopFare": {
+      "Fare": 479.2,
+      "AirlineCodes": ["AA"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=SFO&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "SFO",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.13
+  }, {
+    "LowestFare": {
+      "Fare": 367.94,
+      "AirlineCodes": ["AA"]
+    },
+    "Distance": 1546,
+    "LowestNonStopFare": {
+      "Fare": 486.6,
+      "AirlineCodes": ["DL"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=SJU&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "SJU",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.24
+  }, {
+    "LowestFare": {
+      "Fare": 80.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Distance": 408,
+    "LowestNonStopFare": {
+      "Fare": 80.2,
+      "AirlineCodes": ["NK"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=TPA&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "TPA",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.2
+  }, {
+    "LowestFare": {
+      "Fare": 405.25,
+      "AirlineCodes": ["UA"]
+    },
+    "Distance": 725,
+    "LowestNonStopFare": {
+      "Fare": 652.71,
+      "AirlineCodes": ["DL", "WS"]
+    },
+    "Links": [{
+      "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=YYZ&departuredate=2015-12-10&returndate=2015-12-12&pointofsalecountry=US",
+      "rel": "shop"
+    }],
+    "CurrencyCode": "USD",
+    "DestinationLocation": "YYZ",
+    "DepartureDateTime": "2015-12-10T00:00:00",
+    "ReturnDateTime": "2015-12-12T00:00:00",
+    "PricePerMile": 0.56
+  }],
+  "OriginLocation": "ATL",
+  "Links": [{
+    "href": "https://api.test.sabre.com/v2/shop/flights/fares?origin=ATL&returndate=2015-12-12&departuredate=2015-12-10",
+    "rel": "self"
+  }, {
+    "href": "https://api.test.sabre.com/v2/shop/flights/fares?origin=<origin>&departuredate=<departuredate>&returndate=<returndate>&location=<location>&theme=<theme>&minfare=<minfare>&maxfare=<maxfare>&lengthofstay=<lengthofstay>&earliestdeparturedate=<earliestdeparturedate>&latestdeparturedate=<latestdeparturedate>&pointofsalecountry=<pointofsalecountry>&region=<region>&topdestinations=<topdestinations>&pricepermile=<pricepermile>",
+    "rel": "linkTemplate"
+  }]
+}
