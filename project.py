@@ -11,6 +11,7 @@ import base64
 import json
 import datetime
 from dateutil.parser import parse
+from collections import defaultdict
 
 environment = 'https://api.test.sabre.com'
 access_token = 0
@@ -31,7 +32,7 @@ def main(args):
     print 'Origin A: %s\nOrigin B: %s' % (originA, originB)
     while(True):
         correct = raw_input('Is this correct? (Y/N)\n')
-        if correct.lower() == 'y':
+        if correct.lower() == 'y' or '\n':
             print 'Great!'
             break
         elif correct.lower() == 'n':
@@ -140,11 +141,30 @@ def calculatemidpoint(originA, originB, departdate, returndate):
     # first throw the query through the destinations engine
     print 'Querying the server about %s.' % originA
     resultsA = destinations(originA, departdate, returndate)
+
+    # for debugging purposes, erase + write to file
     fileA = open('./results.json', 'w')
     fileA.truncate()
     fileA.close()
     with open('./results.json', 'w') as outfile:
         json.dump(resultsA, outfile)
+
+    dbA = defaultdict(list)
+    for city in resultsA:
+        dbA[city['DestinationLocation']] = {
+            'fare': city['LowestFare']['Fare'],
+            'carrierA': city['LowestFare']['AirlineCodes']
+        }
+
+    dbB = defaultdict(list)
+    # repeat for 2nd origin
+    print 'Querying the server about %s.' % originB
+    resultsB = destinations(originB, departdate, returndate)
+    for city in resultsB:
+        dbB[city['DestinationLocation']] = {
+            'fare': city['LowestFare']['Fare'],
+            'carrierB': city['LowestFare']['AirlineCodes']
+        }
 
 
 def destinations(query, departdate, returndate):
@@ -163,7 +183,7 @@ def destinations(query, departdate, returndate):
         'Authorization': ('Bearer %s' % access_token),
     }
     r = requests.get(url, headers=header, params=params)
-    data = r.json()
+    data = r.json()['FareInfo']
     return data
 
 if __name__ == "__main__":
