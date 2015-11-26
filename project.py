@@ -52,15 +52,16 @@ def main(args):
     os.system('cls' if os.name == 'nt' else 'clear')
 
     # figure out arrival/return dates of trip
-    '''
+
     print 'Please enter the date you would like to meet on.'
-    while(True):
+    while True:
         departdate = parse(
             raw_input('Form: Month Day Year (e.g. "December 8 2015")\n'), fuzzy=True)
-        if departdate < datetime.datetime.now() or
-                departdate > (datetime.datetime.now() + datetime.timedelta(192)):
-            print ('You must enter a date in the future',
-                   'that is no more than 192 days from now.')
+        if (departdate < datetime.datetime.now() or
+                departdate > (datetime.datetime.now() + datetime.timedelta(192))):
+            print (
+                'You must enter a date in the future ',
+                'that is no more than 192 days from now.')
         else:
             correct = raw_input('OK, so you want to meet on %s? (Y/N)\n' %
                                 departdate.strftime('%A, %B %d, %Y'))
@@ -68,20 +69,21 @@ def main(args):
                 break
     os.system('cls' if os.name == 'nt' else 'clear')
     print 'Please enter the date you would like to return on.'
-    while(True):
+    while True:
         returndate = parse(
             raw_input('Form: Month Day Year (e.g. "December 10 2015")\n'), fuzzy=True)
-        if returndate < datetime.datetime.now() or
+        if (returndate < datetime.datetime.now() or
                 returndate > (datetime.datetime.now() + datetime.timedelta(192)) or
-                returndate < departdate:
-            print ('You must enter a date after your departure',
-                  'that is no more than 192 days from now.')
+                returndate < departdate):
+            print (
+                'You must enter a date after your departure ',
+                'that is no more than 192 days from now.')
         else:
             correct = raw_input('OK, so you want to return on %s? (Y/N)\n' %
                                 returndate.strftime('%A, %B %d, %Y'))
             if correct.lower() == 'y':
                 break
-    '''
+
     # Debug only
     departdate = parse('december 8 2015')
     returndate = parse('december 10 2015')
