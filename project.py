@@ -1,10 +1,12 @@
 # 
-#   Given two cities, calculate the optimal destination.
+#   Given two cities, calculate the optimal place to meet in.
 #   By: Jonathan Rolfe
 #   For CS50 final project
 #
 
-import sys, requests, base64, json
+import sys, os, requests, base64, json, datetime
+from dateutil.parser import parse
+
 environment = 'https://api.test.sabre.com'
 access_token = 0
 
@@ -16,10 +18,11 @@ def main(args):
         quit()
     
     # translate names -> airports
-    origin = suggest(args[0])
-    destination = suggest(args[1])
+    originA = suggest(args[0])
+    originB = suggest(args[1])
     
-    print 'Origin: %s\nDestination: %s' % (origin, destination)
+    # double check origins
+    print 'Origin A: %s\nOrigin B: %s' % (originA, originB)
     while(True):
         correct = raw_input('Is this correct? (Y/N)\n')
         if correct.lower() == 'y':
@@ -31,7 +34,35 @@ def main(args):
         else:
             print 'Invalid response.'
     
-    print 'broken out!'
+    # clear terminal
+    os.system('cls' if os.name == 'nt' else 'clear')
+    
+    # figure out date of trip
+    print 'Please enter the date you would like to meet on.'
+    while(True):
+        departdate = parse(raw_input('Form: Month Day Year (e.g. "December 8 2015")\n'), fuzzy = True)
+        if departdate < datetime.datetime.now() or departdate > (datetime.datetime.now() + datetime.timedelta(192)):
+            print 'You must enter a date in the future that is no more than 192 days from now.'
+        else:
+            correct = raw_input('OK, so you want to meet on %s? (Y/N)\n' % departdate.strftime('%A, %B %d, %Y'))
+            if correct.lower() == 'y':
+                break
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print 'Please enter the date you would like to return on.'
+    while(True):
+        returndate = parse(raw_input('Form: Month Day Year (e.g. "December 8 2015")\n'), fuzzy = True)
+        if returndate < datetime.datetime.now() or returndate > (datetime.datetime.now() + datetime.timedelta(192)):
+            print 'You must enter a date in the future that is no more than 192 days from now.'
+        else:
+            correct = raw_input('OK, so you want to return on %s? (Y/N)\n' % returndate.strftime('%A, %B %d, %Y'))
+            if correct.lower() == 'y':
+                break
+            
+    # clear terminal
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print 'Working on your trip between %s and %s, departing on %s and returning on %s.' % (originA, originB, departdate.strftime('%b %d, %Y'), returndate.strftime('%b %d, %Y'))
+    calculatemidpoint(originA, originB, departdate, returndate)
+    
 
 def suggest(query):
     # get token, make request to API to suggest correct result
@@ -69,7 +100,8 @@ def gettoken():
     apifile = open('./key')
     client_id = apifile.readline().strip()
     client_secret = apifile.readline().strip()
-
+    apifile.close()
+    
     # encode id and secret as per API spec:
     # https://developer.sabre.com/docs/read/rest_basics/authentication
     client_id = base64.b64encode(client_id)
@@ -87,6 +119,35 @@ def gettoken():
     data = r.json()
     # print json.dumps(data, indent = 4)
     access_token = data['access_token']
+
+def calculatemidpoint(originA, originB, departdate, returndate):
+    
+    # first throw the query through the destinations engine
+    print 'Querying the server about %s.' % originA
+    destinations(originA, departdate, returndate)
+    
+def destinations(query, departdate, returndate):
+    # if there isn't already an access token generated, do so
+    if access_token == 0:
+        gettoken()
+    
+    # set up parameters and make query
+    url = environment + '/v2/shop/flights/fares'
+    params = {
+        'origin': query,
+        'departuredate': departdate.date(),
+        'returndate': returndate.date(),
+    }
+    header = {
+        'Authorization': ('Bearer %s' % access_token),
+    }
+    r = requests.get(url, headers = header, params = params)
+    data = r.json()
+    print json.dumps(data, indent = 4)
     
 if __name__ == "__main__":
+   # clear terminal
+   os.system('cls' if os.name == 'nt' else 'clear')  
+   # call main
    main(sys.argv[1:])
+   
