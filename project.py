@@ -28,7 +28,7 @@ def main(args):
 
     # parse args
     if not args or len(args) != 2:
-        print 'Usage: ./%s from to' % sys.argv[0]
+        print 'Usage: %s from to' % sys.argv[0]
         quit()
 
     # translate names -> airports
@@ -59,9 +59,8 @@ def main(args):
             raw_input('Form: Month Day Year (e.g. "December 8 2015")\n'), fuzzy=True)
         if (departdate < datetime.datetime.now() or
                 departdate > (datetime.datetime.now() + datetime.timedelta(192))):
-            print (
-                'You must enter a date in the future ',
-                'that is no more than 192 days from now.')
+            print 'You must enter a date in the future', \
+                  'that is no more than 192 days from now.'
         else:
             correct = raw_input('OK, so you want to meet on %s? (Y/N)\n' %
                                 departdate.strftime('%A, %B %d, %Y'))
@@ -75,9 +74,8 @@ def main(args):
         if (returndate < datetime.datetime.now() or
                 returndate > (datetime.datetime.now() + datetime.timedelta(192)) or
                 returndate < departdate):
-            print (
-                'You must enter a date after your departure ',
-                'that is no more than 192 days from now.')
+            print 'You must enter a date after your departure', \
+                  'that is no more than 192 days from now.'
         else:
             correct = raw_input('OK, so you want to return on %s? (Y/N)\n' %
                                 returndate.strftime('%A, %B %d, %Y'))
@@ -151,7 +149,7 @@ def gettoken():
     request = requests.post(url, headers=auth, data=payload)
     data = request.json()
     # print json.dumps(data, indent = 4)
-    ACCESS_TOKEN = data['ACCESS_TOKEN']
+    ACCESS_TOKEN = data['access_token']
 
 
 def calculatemidpoint(origin_a, origin_b, departdate, returndate):
