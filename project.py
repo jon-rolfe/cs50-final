@@ -1,4 +1,9 @@
-#
+#!/usr/bin/env python
+
+"""
+Usage: project.py from to
+Given two cities, calculate the optimal city to meet in.
+"""
 #   Given two cities, calculate the optimal place to meet in.
 #   By: Jonathan Rolfe
 #   For CS50 final project
@@ -10,14 +15,16 @@ import requests
 import base64
 import json
 import datetime
+import pprint
 from dateutil.parser import parse
 from collections import defaultdict
 
-environment = 'https://api.test.sabre.com'
-access_token = 0
+ENVIRONMENT = 'https://api.test.sabre.com'
+ACCESS_TOKEN = 0
 
 
 def main(args):
+    """Handles user input and passes it to relevant functions."""
 
     # parse args
     if not args or len(args) != 2:
@@ -25,12 +32,12 @@ def main(args):
         quit()
 
     # translate names -> airports
-    originA = suggest(args[0])
-    originB = suggest(args[1])
+    origin_a = suggest(args[0])
+    origin_b = suggest(args[1])
 
     # double check origins
-    print 'Origin A: %s\nOrigin B: %s' % (originA, originB)
-    while(True):
+    print 'Origin A: %s\nOrigin B: %s' % (origin_a, origin_b)
+    while True:
         correct = raw_input('Is this correct? (Y/N)\n')
         if correct.lower() == 'y' or '\n':
             print 'Great!'
@@ -74,26 +81,27 @@ def main(args):
     returndate = parse('december 10 2015')
     # clear terminal
     os.system('cls' if os.name == 'nt' else 'clear')
-    print 'Working on your trip between %s and %s, departing on %s and returning on %s.' % (originA, originB, departdate.strftime('%b %d, %Y'), returndate.strftime('%b %d, %Y'))
-    calculatemidpoint(originA, originB, departdate, returndate)
+    print 'Working on your trip between %s and %s, departing on %s and returning on %s.' % (origin_a, origin_b, departdate.strftime('%b %d, %Y'), returndate.strftime('%b %d, %Y'))
+    calculatemidpoint(origin_a, origin_b, departdate, returndate)
 
 
 def suggest(query):
+    """Given a string, resolve it to possible (valid) airports."""
     # get token, make request to API to suggest correct result
     gettoken()
-    url = environment + '/v1/lists/utilities/geoservices/autocomplete'
+    url = ENVIRONMENT + '/v1/lists/utilities/geoservices/autocomplete'
     params = {
         'query': query,
         'category': 'AIR',
         'limit': '3'
     }
     header = {
-        'Authorization': ('Bearer %s' % access_token),
+        'Authorization': ('Bearer %s' % ACCESS_TOKEN),
     }
-    r = requests.get(url, headers=header, params=params)
+    request = requests.get(url, headers=header, params=params)
 
     # now actually act upon said data!
-    data = r.json()['Response']['grouped']['category:AIR']['doclist']
+    data = request.json()['Response']['grouped']['category:AIR']['doclist']
 
     if data['numFound'] == 0:
         print 'No results found.'
@@ -110,8 +118,9 @@ def suggest(query):
 
 
 def gettoken():
+    """Gets an OAUTH2 client token for all further API requests."""
     # open file, get client id/secret, strip newline chars
-    global access_token
+    global ACCESS_TOKEN
     apifile = open('./key')
     client_id = apifile.readline().strip()
     client_secret = apifile.readline().strip()
@@ -123,67 +132,69 @@ def gettoken():
     client_secret = base64.b64encode(client_secret)
     client_credentials = base64.b64encode(client_id + ':' + client_secret)
 
-    url = environment + '/v2/auth/token'
+    url = ENVIRONMENT + '/v2/auth/token'
     auth = {
         'Authorization': ('Basic %s' % client_credentials),
         'Content-type': 'application/x-www-form-urlencoded'
     }
     payload = 'grant_type=client_credentials'
 
-    r = requests.post(url, headers=auth, data=payload)
-    data = r.json()
+    request = requests.post(url, headers=auth, data=payload)
+    data = request.json()
     # print json.dumps(data, indent = 4)
-    access_token = data['access_token']
+    ACCESS_TOKEN = data['ACCESS_TOKEN']
 
 
-def calculatemidpoint(originA, originB, departdate, returndate):
-
+def calculatemidpoint(origin_a, origin_b, departdate, returndate):
+    """Attempts to calculate the best midpoint through which both parties could pass."""
     # first throw the query through the destinations engine
-    print 'Querying the server about %s.' % originA
-    resultsA = destinations(originA, departdate, returndate)
+    print 'Querying the server about %s.' % origin_a
+    results_a = destinations(origin_a, departdate, returndate)
 
     # for debugging purposes, erase + write to file
-    fileA = open('./results.json', 'w')
-    fileA.truncate()
-    fileA.close()
+    file_a = open('./results.json', 'w')
+    file_a.truncate()
+    file_a.close()
     with open('./results.json', 'w') as outfile:
-        json.dump(resultsA, outfile)
+        json.dump(results_a, outfile)
 
-    dbA = defaultdict(list)
-    for city in resultsA:
-        dbA[city['DestinationLocation']] = {
+    db_a = defaultdict(list)
+    for city in results_a:
+        db_a[city['DestinationLocation']] = {
             'fare': city['LowestFare']['Fare'],
             'carrierA': city['LowestFare']['AirlineCodes']
         }
 
-    dbB = defaultdict(list)
+    db_b = defaultdict(list)
     # repeat for 2nd origin
-    print 'Querying the server about %s.' % originB
-    resultsB = destinations(originB, departdate, returndate)
-    for city in resultsB:
-        dbB[city['DestinationLocation']] = {
+    print 'Querying the server about %s.' % origin_b
+    results_b = destinations(origin_b, departdate, returndate)
+    for city in results_b:
+        db_b[city['DestinationLocation']] = {
             'fare': city['LowestFare']['Fare'],
             'carrierB': city['LowestFare']['AirlineCodes']
         }
 
+    pprint.pprint(db_b)
 
 def destinations(query, departdate, returndate):
+    """Function that actually calls the SABRE API to get all destinations."""
     # if there isn't already an access token generated, do so
-    if access_token == 0:
+    if ACCESS_TOKEN == 0:
         gettoken()
 
     # set up parameters and make query
-    url = environment + '/v2/shop/flights/fares'
+    url = ENVIRONMENT + '/v2/shop/flights/fares'
     params = {
         'origin': query,
         'departuredate': departdate.date(),
         'returndate': returndate.date(),
     }
     header = {
-        'Authorization': ('Bearer %s' % access_token),
+        'Authorization': ('Bearer %s' % ACCESS_TOKEN),
     }
-    r = requests.get(url, headers=header, params=params)
-    data = r.json()['FareInfo']
+    request = requests.get(url, headers=header, params=params)
+    data = request.json()['FareInfo']
     return data
 
 if __name__ == "__main__":
