@@ -4,10 +4,6 @@
 Usage: project.py from to
 Given two cities, calculate the optimal city to meet in.
 """
-#   Given two cities, calculate the optimal place to meet in.
-#   By: Jonathan Rolfe
-#   For CS50 final project
-#
 
 import sys
 import os
@@ -15,12 +11,12 @@ import requests
 import base64
 import json
 import datetime
-import pprint
+import sqlite3
 from dateutil.parser import parse
-from collections import defaultdict
 
 ENVIRONMENT = 'https://api.test.sabre.com'
 ACCESS_TOKEN = 0
+DATABASE_NAME = 'data/flights.sqlite'
 
 
 def main(args):
@@ -52,7 +48,6 @@ def main(args):
     os.system('cls' if os.name == 'nt' else 'clear')
 
     # figure out arrival/return dates of trip
-
     print 'Please enter the date you would like to meet on.'
     while True:
         departdate = parse(
@@ -165,24 +160,12 @@ def calculatemidpoint(origin_a, origin_b, departdate, returndate):
     with open('./results.json', 'w') as outfile:
         json.dump(results_a, outfile)
 
-    db_a = defaultdict(list)
-    for city in results_a:
-        db_a[city['DestinationLocation']] = {
-            'fare': city['LowestFare']['Fare'],
-            'carrierA': city['LowestFare']['AirlineCodes']
-        }
-
-    db_b = defaultdict(list)
-    # repeat for 2nd origin
+    # repeat query for 2nd origin
     print 'Querying the server about %s.' % origin_b
     results_b = destinations(origin_b, departdate, returndate)
-    for city in results_b:
-        db_b[city['DestinationLocation']] = {
-            'fare': city['LowestFare']['Fare'],
-            'carrierB': city['LowestFare']['AirlineCodes']
-        }
 
-    pprint.pprint(db_b)
+    # TODO: Put into sqlite DB
+
 
 def destinations(query, departdate, returndate):
     """Function that actually calls the SABRE API to get all destinations."""
@@ -203,6 +186,54 @@ def destinations(query, departdate, returndate):
     request = requests.get(url, headers=header, params=params)
     data = request.json()['FareInfo']
     return data
+
+
+def makedatabase():
+    '''Creates an SQLite DB if it doesn't already exist.'''
+    # TODO: Pass these, don't just have them be global. Because that's bad.
+    global cursor
+    global db
+
+    print 'Attaching to flights DB...'
+    db = sqlite3.connect(DATABASE_NAME)
+    cursor = db.cursor()
+    print 'Checking DB integrity...'
+    errors = cursor.execute('PRAGMA quick_check')
+    print errors
+
+    # Create the table (if it doesn't already exist)
+    cursor.execute('''
+        CREATE TABLE if not exists flights(id INTEGER PRIMARY KEY, origin TEXT,
+        destination TEXT, timefetched TEXT, fare REAL, airlinecode TEXT,
+        distance INTEGER, lowestnonstopfare INTEGER, lowestnonstopairlines TEXT,
+        currencycode TEXT, departuredate TEXT, returndate TEXT,
+        pricepermile REAL, link TEXT)
+    ''')
+    db.commit()
+
+
+def closedatabase():
+    db.close()
+
+'''
+{
+  "LowestFare": {
+    "Fare": 1955,
+    "AirlineCodes": ["TN", "VT", "DL"]
+  },
+  "Distance": 5612,
+  "LowestNonStopFare": "N/A",
+  "Links": [{
+    "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=BOB&departuredate=2015-12-08&returndate=2015-12-10&pointofsalecountry=US",
+    "rel": "shop"
+  }],
+  "CurrencyCode": "USD",
+  "DestinationLocation": "BOB",
+  "DepartureDateTime": "2015-12-08T00:00:00",
+  "ReturnDateTime": "2015-12-10T00:00:00",
+  "PricePerMile": 0.35
+}
+'''
 
 if __name__ == "__main__":
     # clear terminal
