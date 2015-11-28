@@ -17,6 +17,8 @@ from dateutil.parser import parse
 ENVIRONMENT = 'https://api.test.sabre.com'
 ACCESS_TOKEN = 0
 DATABASE_NAME = 'data/flights.sqlite'
+DB = sqlite3.connect(DATABASE_NAME)
+CURSOR = DB.cursor()
 
 
 def main(args):
@@ -46,7 +48,7 @@ def main(args):
 
     # clear terminal
     os.system('cls' if os.name == 'nt' else 'clear')
-
+    '''
     # figure out arrival/return dates of trip
     print 'Please enter the date you would like to meet on.'
     while True:
@@ -76,8 +78,8 @@ def main(args):
                                 returndate.strftime('%A, %B %d, %Y'))
             if correct.lower() == 'y':
                 break
-
-    # Debug only
+    '''
+    # Debug defaults
     departdate = parse('december 8 2015')
     returndate = parse('december 10 2015')
     # clear terminal
@@ -149,22 +151,24 @@ def gettoken():
 
 def calculatemidpoint(origin_a, origin_b, departdate, returndate):
     """Attempts to calculate the best midpoint through which both parties could pass."""
-    # first throw the query through the destinations engine
+    # DEBUG: Destroy DB every run. (This fn makes a new one, but this
+    # statement won't be here for long and it doesn't hurt to run makedb
+    # again.)
+    makedatabase()
+    destroydatabase()
+
+    # make a DB, if it doesn't already exist
+
+    # now: throw the query through the destinations engine
     print 'Querying the server about %s.' % origin_a
     results_a = destinations(origin_a, departdate, returndate)
-
-    # for debugging purposes, erase + write to file
-    file_a = open('./results.json', 'w')
-    file_a.truncate()
-    file_a.close()
-    with open('./results.json', 'w') as outfile:
-        json.dump(results_a, outfile)
 
     # repeat query for 2nd origin
     print 'Querying the server about %s.' % origin_b
     results_b = destinations(origin_b, departdate, returndate)
 
-    # TODO: Put into sqlite DB
+    # Should be the end of access to DB, so close it
+    closedatabase()
 
 
 def destinations(query, departdate, returndate):
@@ -184,38 +188,65 @@ def destinations(query, departdate, returndate):
         'Authorization': ('Bearer %s' % ACCESS_TOKEN),
     }
     request = requests.get(url, headers=header, params=params)
+    data = {}
     data = request.json()['FareInfo']
-    return data
+    print type(data)
+    addtodb(data, query)
+    # TODO: return condition should be bool for success
+    return True
 
 
-def makedatabase():
-    '''Creates an SQLite DB if it doesn't already exist.'''
-    # TODO: Pass these, don't just have them be global. Because that's bad.
-    global cursor
-    global db
+def addtodb(data, origin):
+    """Function that adds JSON data retrieved from SABRE to SQLite DB."""
+    print type(data)
+    # for debugging purposes, erase + write data to file
+    data_out = open('./results.json', 'w')
+    data_out.truncate()
+    data_out.close()
+    with open('./results.json', 'w') as outfile:
+        json.dump(data, outfile)
 
-    print 'Attaching to flights DB...'
-    db = sqlite3.connect(DATABASE_NAME)
-    cursor = db.cursor()
-    print 'Checking DB integrity...'
-    errors = cursor.execute('PRAGMA quick_check')
-    print errors
+    # The only real data variation we should have is whether there's a lowest
+    # nonstop fare that's different from the lowest fare
+    try:
+        # This should throw an IndexError if the column doesn't exist
+        for fare in data:
+            fare['LowestNonStopFare']['Fare']
+            CURSOR.execute('''
+                INSERT INTO flights (origin, destination, timefetched, fare,
+                airlinecode, distance, lowestnonstopfare, lowestnonstopairlines,
+                currencycode, departuredate, returndate, pricepermile, link)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', query, fare['DestinationLocation'], datetime.datetime.now(),
+                           fare['LowestFare']['Fare'], fare[
+                               'LowestFare']['AirlineCodes'],
+                           fare['Distance'], fare['LowestNonStopFare']['Fare'],
+                           fare['LowestNonstopFare'][
+                               'AirlineCodes'], fare['CurrencyCode'],
+                           fare['DepartureDateTime'], fare['ReturnDateTime'],
+                           fare['PricePerMile'], fare['Links']['href'])
+    except IndexError:
+        for fare in data:
+            CURSOR.execute('''
+                INSERT INTO flights (origin, destination, timefetched, fare,
+                airlinecode, distance, lowestnonstopfare, currencycode,
+                departuredate, returndate, pricepermile, link)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', query, fare['DestinationLocation'], datetime.datetime.now(),
+                           fare['LowestFare']['Fare'], fare[
+                               'LowestFare']['AirlineCodes'],
+                           fare['Distance'], fare[
+                               'LowestNonStopFare'], fare['CurrencyCode'],
+                           fare['DepartureDateTime'], fare['ReturnDateTime'],
+                           fare['PricePerMile'], fare['Links']['href'])
 
-    # Create the table (if it doesn't already exist)
-    cursor.execute('''
-        CREATE TABLE if not exists flights(id INTEGER PRIMARY KEY, origin TEXT,
-        destination TEXT, timefetched TEXT, fare REAL, airlinecode TEXT,
-        distance INTEGER, lowestnonstopfare INTEGER, lowestnonstopairlines TEXT,
-        currencycode TEXT, departuredate TEXT, returndate TEXT,
-        pricepermile REAL, link TEXT)
-    ''')
-    db.commit()
-
-
-def closedatabase():
-    db.close()
+    # Finally, commit all that to the DB
+    DB.commit()
 
 '''
+
+
+SAMPLE DB FORMAT:
 {
   "LowestFare": {
     "Fare": 1955,
@@ -234,6 +265,39 @@ def closedatabase():
   "PricePerMile": 0.35
 }
 '''
+
+
+def destroydatabase():
+    """If something goes wrong, drop the DB and make a new one."""
+
+    # Drop table, commit, make a new one.
+    CURSOR.execute('''
+        DROP TABLE flights
+    ''')
+    DB.commit()
+
+    makedatabase()
+
+
+def makedatabase():
+    """Creates an SQLite DB if it doesn't already exist."""
+    print 'Checking DB integrity...'
+    errors = CURSOR.execute('PRAGMA quick_check')
+    print errors
+
+    # Create the table (if it doesn't already exist)
+    CURSOR.execute('''
+        CREATE TABLE if not exists flights(id INTEGER PRIMARY KEY, origin TEXT,
+        destination TEXT, timefetched TEXT, fare REAL, airlinecode TEXT,
+        distance INTEGER, lowestnonstopfare INTEGER, lowestnonstopairlines TEXT,
+        currencycode TEXT, departuredate TEXT, returndate TEXT,
+        pricepermile REAL, link TEXT)
+    ''')
+    DB.commit()
+
+
+def closedatabase():
+    DB.close()
 
 if __name__ == "__main__":
     # clear terminal

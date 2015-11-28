@@ -1,2 +1,5 @@
 /key
-/results.json
+
+*.sqlite
+
+*.json
