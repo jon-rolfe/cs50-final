@@ -188,11 +188,10 @@ def destinations(query, departdate, returndate):
         'Authorization': ('Bearer %s' % ACCESS_TOKEN),
     }
     request = requests.get(url, headers=header, params=params)
-    data = {}
-    data = request.json()['FareInfo']
+    data = request.json()
     print type(data)
     addtodb(data, query)
-    # TODO: return condition should be bool for success
+    # TODO: return condition should be bool for success and false for failure
     return True
 
 
@@ -208,16 +207,16 @@ def addtodb(data, origin):
 
     # The only real data variation we should have is whether there's a lowest
     # nonstop fare that's different from the lowest fare
-    try:
-        # This should throw an IndexError if the column doesn't exist
-        for fare in data:
+    for fare in data:
+        try:
+            # This next line is just to check existance w/o touching the DB
             fare['LowestNonStopFare']['Fare']
             CURSOR.execute('''
                 INSERT INTO flights (origin, destination, timefetched, fare,
                 airlinecode, distance, lowestnonstopfare, lowestnonstopairlines,
                 currencycode, departuredate, returndate, pricepermile, link)
                 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', query, fare['DestinationLocation'], datetime.datetime.now(),
+            ''', origin, fare['DestinationLocation'], datetime.datetime.now(),
                            fare['LowestFare']['Fare'], fare[
                                'LowestFare']['AirlineCodes'],
                            fare['Distance'], fare['LowestNonStopFare']['Fare'],
@@ -225,14 +224,13 @@ def addtodb(data, origin):
                                'AirlineCodes'], fare['CurrencyCode'],
                            fare['DepartureDateTime'], fare['ReturnDateTime'],
                            fare['PricePerMile'], fare['Links']['href'])
-    except IndexError:
-        for fare in data:
+        except IndexError:
             CURSOR.execute('''
                 INSERT INTO flights (origin, destination, timefetched, fare,
                 airlinecode, distance, lowestnonstopfare, currencycode,
                 departuredate, returndate, pricepermile, link)
                 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', query, fare['DestinationLocation'], datetime.datetime.now(),
+            ''', origin, fare['DestinationLocation'], datetime.datetime.now(),
                            fare['LowestFare']['Fare'], fare[
                                'LowestFare']['AirlineCodes'],
                            fare['Distance'], fare[
@@ -297,6 +295,7 @@ def makedatabase():
 
 
 def closedatabase():
+    """Quick and simple: Closes the DB."""
     DB.close()
 
 if __name__ == "__main__":
