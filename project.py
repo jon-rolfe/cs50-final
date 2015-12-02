@@ -225,11 +225,11 @@ def addtodb(data, origin):
                 currencycode, departuredate, returndate, pricepermile, link)
                 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (origin, fare['DestinationLocation'], datetime.datetime.now(),
-                           fare['LowestFare']['Fare'], aircodes,
-                           fare['Distance'], fare['LowestNonStopFare']['Fare'],
-                           nonstopcodes, fare['CurrencyCode'],
-                           fare['DepartureDateTime'], fare['ReturnDateTime'],
-                           fare['PricePerMile'], fare['Links'][0]['href']))
+                  fare['LowestFare']['Fare'], aircodes,
+                  fare['Distance'], fare['LowestNonStopFare']['Fare'],
+                  nonstopcodes, fare['CurrencyCode'],
+                  fare['DepartureDateTime'], fare['ReturnDateTime'],
+                  fare['PricePerMile'], fare['Links'][0]['href']))
         except (TypeError, KeyError):
             CURSOR.execute('''
                 INSERT INTO flights (origin, destination, timefetched, fare,
@@ -237,10 +237,10 @@ def addtodb(data, origin):
                 departuredate, returndate, pricepermile, link)
                 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (origin, fare['DestinationLocation'], datetime.datetime.now(),
-                           fare['LowestFare']['Fare'], aircodes,
-                           fare['Distance'], fare['CurrencyCode'],
-                           fare['DepartureDateTime'], fare['ReturnDateTime'],
-                           fare['PricePerMile'], fare['Links'][0]['href']))
+                  fare['LowestFare']['Fare'], aircodes,
+                  fare['Distance'], fare['CurrencyCode'],
+                  fare['DepartureDateTime'], fare['ReturnDateTime'],
+                  fare['PricePerMile'], fare['Links'][0]['href']))
 
     # Finally, commit all that to the DB
     DB.commit()
