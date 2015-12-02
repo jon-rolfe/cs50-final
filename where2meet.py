@@ -12,6 +12,7 @@ import base64
 import json
 import datetime
 import sqlite3
+import database.py
 from dateutil.parser import parse
 
 ENVIRONMENT = 'https://api.test.sabre.com'
@@ -196,111 +197,6 @@ def destinations(query, departdate, returndate):
     addtodb(data, query)
     # TODO: return condition should be bool for success and false for failure
     return True
-
-
-def addtodb(data, origin):
-    """Function that adds JSON data retrieved from SABRE to SQLite DB."""
-
-    # for debugging purposes, erase + write data to file
-    data_out = open('./results.json', 'w')
-    data_out.truncate()
-    data_out.close()
-    with open('./results.json', 'w') as outfile:
-        json.dump(data, outfile, indent=1)
-
-    # The only real data variation we should have is whether there's a lowest
-    # nonstop fare that's different from the lowest fare
-    for fare in data:
-        # For some reason, the API sometimes returns useless/skippable results
-        try:
-            aircodes = ''.join(fare['LowestFare']['AirlineCodes'])
-        except:
-            continue
-        try:
-            # This next line will trigger an error if there are no nonstops
-            nonstopcodes = ''.join(fare['LowestNonStopFare']['AirlineCodes'])
-            CURSOR.execute('''
-                INSERT INTO flights (origin, destination, timefetched, fare,
-                airlinecode, distance, lowestnonstopfare, lowestnonstopairlines,
-                currencycode, departuredate, returndate, pricepermile, link)
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (origin, fare['DestinationLocation'], datetime.datetime.now(),
-                  fare['LowestFare']['Fare'], aircodes,
-                  fare['Distance'], fare['LowestNonStopFare']['Fare'],
-                  nonstopcodes, fare['CurrencyCode'],
-                  fare['DepartureDateTime'], fare['ReturnDateTime'],
-                  fare['PricePerMile'], fare['Links'][0]['href']))
-        except (TypeError, KeyError):
-            CURSOR.execute('''
-                INSERT INTO flights (origin, destination, timefetched, fare,
-                airlinecode, distance, currencycode,
-                departuredate, returndate, pricepermile, link)
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (origin, fare['DestinationLocation'], datetime.datetime.now(),
-                  fare['LowestFare']['Fare'], aircodes,
-                  fare['Distance'], fare['CurrencyCode'],
-                  fare['DepartureDateTime'], fare['ReturnDateTime'],
-                  fare['PricePerMile'], fare['Links'][0]['href']))
-
-    # Finally, commit all that to the DB
-    DB.commit()
-
-'''
-
-
-SAMPLE DB FORMAT (JSON):
-{
-  "LowestFare": {
-    "Fare": 1955,
-    "AirlineCodes": ["TN", "VT", "DL"]
-  },
-  "Distance": 5612,
-  "LowestNonStopFare": "N/A",
-  "Links": [{
-    "href": "https://api.test.sabre.com/v1/shop/flights?origin=ATL&destination=BOB&departuredate=2015-12-08&returndate=2015-12-10&pointofsalecountry=US",
-    "rel": "shop"
-  }],
-  "CurrencyCode": "USD",
-  "DestinationLocation": "BOB",
-  "DepartureDateTime": "2015-12-08T00:00:00",
-  "ReturnDateTime": "2015-12-10T00:00:00",
-  "PricePerMile": 0.35
-}
-'''
-
-
-def destroydatabase():
-    """If something goes wrong, drop the DB and make a new one."""
-
-    # Drop table, commit, make a new one.
-    CURSOR.execute('''
-        DROP TABLE flights
-    ''')
-    DB.commit()
-
-    makedatabase()
-
-
-def makedatabase():
-    """Creates an SQLite DB if it doesn't already exist."""
-    print 'Checking DB integrity...'
-    errors = CURSOR.execute('PRAGMA quick_check')
-    print errors
-
-    # Create the table (if it doesn't already exist)
-    CURSOR.execute('''
-        CREATE TABLE if not exists flights(id INTEGER PRIMARY KEY, origin TEXT,
-        destination TEXT, timefetched TEXT, fare REAL, airlinecode TEXT,
-        distance INTEGER, lowestnonstopfare INTEGER, lowestnonstopairlines TEXT,
-        currencycode TEXT, departuredate TEXT, returndate TEXT,
-        pricepermile REAL, link TEXT)
-    ''')
-    DB.commit()
-
-
-def closedatabase():
-    """Quick and simple: Closes the DB."""
-    DB.close()
 
 if __name__ == "__main__":
     # clear terminal
