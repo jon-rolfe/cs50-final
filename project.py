@@ -103,6 +103,7 @@ def suggest(query):
         'Authorization': ('Bearer %s' % ACCESS_TOKEN),
     }
     request = requests.get(url, headers=header, params=params)
+    # TODO: Add non-200 response logic
 
     # now actually act upon said data!
     data = request.json()['Response']['grouped']['category:AIR']['doclist']
@@ -144,6 +145,8 @@ def gettoken():
     payload = 'grant_type=client_credentials'
 
     request = requests.post(url, headers=auth, data=payload)
+    # TODO: Add non-200 response logic
+
     data = request.json()
     # print json.dumps(data, indent = 4)
     ACCESS_TOKEN = data['access_token']
@@ -188,8 +191,8 @@ def destinations(query, departdate, returndate):
         'Authorization': ('Bearer %s' % ACCESS_TOKEN),
     }
     request = requests.get(url, headers=header, params=params)
-    data = request.json()
-    print type(data)
+    # TODO: Add non-200 response logic
+    data = (request.json()).get('FareInfo')
     addtodb(data, query)
     # TODO: return condition should be bool for success and false for failure
     return True
@@ -197,46 +200,47 @@ def destinations(query, departdate, returndate):
 
 def addtodb(data, origin):
     """Function that adds JSON data retrieved from SABRE to SQLite DB."""
-    print type(data)
+
     # for debugging purposes, erase + write data to file
     data_out = open('./results.json', 'w')
     data_out.truncate()
     data_out.close()
     with open('./results.json', 'w') as outfile:
-        json.dump(data, outfile)
+        json.dump(data, outfile, indent=1)
 
     # The only real data variation we should have is whether there's a lowest
     # nonstop fare that's different from the lowest fare
     for fare in data:
+        # For some reason, the API sometimes returns useless/skippable results
         try:
-            # This next line is just to check existance w/o touching the DB
-            fare['LowestNonStopFare']['Fare']
+            aircodes = ''.join(fare['LowestFare']['AirlineCodes'])
+        except:
+            continue
+        try:
+            # This next line will trigger an error if there are no nonstops
+            nonstopcodes = ''.join(fare['LowestNonStopFare']['AirlineCodes'])
             CURSOR.execute('''
                 INSERT INTO flights (origin, destination, timefetched, fare,
                 airlinecode, distance, lowestnonstopfare, lowestnonstopairlines,
                 currencycode, departuredate, returndate, pricepermile, link)
                 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', origin, fare['DestinationLocation'], datetime.datetime.now(),
-                           fare['LowestFare']['Fare'], fare[
-                               'LowestFare']['AirlineCodes'],
+            ''', (origin, fare['DestinationLocation'], datetime.datetime.now(),
+                           fare['LowestFare']['Fare'], aircodes,
                            fare['Distance'], fare['LowestNonStopFare']['Fare'],
-                           fare['LowestNonstopFare'][
-                               'AirlineCodes'], fare['CurrencyCode'],
+                           nonstopcodes, fare['CurrencyCode'],
                            fare['DepartureDateTime'], fare['ReturnDateTime'],
-                           fare['PricePerMile'], fare['Links']['href'])
-        except IndexError:
+                           fare['PricePerMile'], fare['Links'][0]['href']))
+        except (TypeError, KeyError):
             CURSOR.execute('''
                 INSERT INTO flights (origin, destination, timefetched, fare,
-                airlinecode, distance, lowestnonstopfare, currencycode,
+                airlinecode, distance, currencycode,
                 departuredate, returndate, pricepermile, link)
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', origin, fare['DestinationLocation'], datetime.datetime.now(),
-                           fare['LowestFare']['Fare'], fare[
-                               'LowestFare']['AirlineCodes'],
-                           fare['Distance'], fare[
-                               'LowestNonStopFare'], fare['CurrencyCode'],
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (origin, fare['DestinationLocation'], datetime.datetime.now(),
+                           fare['LowestFare']['Fare'], aircodes,
+                           fare['Distance'], fare['CurrencyCode'],
                            fare['DepartureDateTime'], fare['ReturnDateTime'],
-                           fare['PricePerMile'], fare['Links']['href'])
+                           fare['PricePerMile'], fare['Links'][0]['href']))
 
     # Finally, commit all that to the DB
     DB.commit()
@@ -244,7 +248,7 @@ def addtodb(data, origin):
 '''
 
 
-SAMPLE DB FORMAT:
+SAMPLE DB FORMAT (JSON):
 {
   "LowestFare": {
     "Fare": 1955,
