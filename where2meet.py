@@ -12,7 +12,7 @@ import base64
 import json
 import datetime
 import sqlite3
-import database.py
+import database
 from dateutil.parser import parse
 
 ENVIRONMENT = 'https://api.test.sabre.com'
