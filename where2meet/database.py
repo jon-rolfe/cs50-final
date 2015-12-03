@@ -9,9 +9,12 @@ import json
 import datetime
 import sqlite3
 
-DATABASE_NAME = '../data/flights.sqlite'
-DB = sqlite3.connect(DATABASE_NAME)
-CURSOR = DB.cursor()
+FLIGHTS_DB_NAME = '../data/flights.sqlite'
+FLIGHT_DB = sqlite3.connect(FLIGHTS_DB_NAME)
+FLIGHT_CURSOR = FLIGHT_DB.cursor()
+AIRPORTS_DB_NAME = '../data/airports.sqlite'
+AIRPORTS_DB = sqlite3.connect(AIRPORTS_DB_NAME)
+AIRPORTS_CURSOR = AIRPORTS_DB.cursor()
 
 
 def addtodb(data, origin):
@@ -35,7 +38,7 @@ def addtodb(data, origin):
         try:
             # This next line will trigger an error if there are no nonstops
             nonstopcodes = ''.join(fare['LowestNonStopFare']['AirlineCodes'])
-            CURSOR.execute('''
+            FLIGHT_CURSOR.execute('''
                 INSERT INTO flights (origin, destination, timefetched, fare,
                 airlinecode, distance, lowestnonstopfare, lowestnonstopairlines,
                 currencycode, departuredate, returndate, pricepermile, link)
@@ -47,7 +50,7 @@ def addtodb(data, origin):
                   fare['DepartureDateTime'], fare['ReturnDateTime'],
                   fare['PricePerMile'], fare['Links'][0]['href']))
         except (TypeError, KeyError):
-            CURSOR.execute('''
+            FLIGHT_CURSOR.execute('''
                 INSERT INTO flights (origin, destination, timefetched, fare,
                 airlinecode, distance, currencycode,
                 departuredate, returndate, pricepermile, link)
@@ -59,17 +62,17 @@ def addtodb(data, origin):
                   fare['PricePerMile'], fare['Links'][0]['href']))
 
     # Finally, commit all that to the DB
-    DB.commit()
+    FLIGHT_DB.commit()
 
 
 def destroydatabase():
     """If something goes wrong, drop the DB and make a new one."""
 
     # Drop table, commit, make a new one.
-    CURSOR.execute('''
+    FLIGHT_CURSOR.execute('''
         DROP TABLE flights
     ''')
-    DB.commit()
+    FLIGHT_DB.commit()
 
     makedatabase()
 
@@ -77,20 +80,20 @@ def destroydatabase():
 def makedatabase():
     """Creates an SQLite DB if it doesn't already exist."""
     print 'Checking DB integrity...'
-    errors = CURSOR.execute('PRAGMA quick_check')
+    errors = FLIGHT_CURSOR.execute('PRAGMA quick_check')
     print errors
 
     # Create the table (if it doesn't already exist)
-    CURSOR.execute('''
+    FLIGHT_CURSOR.execute('''
         CREATE TABLE if not exists flights(id INTEGER PRIMARY KEY, origin TEXT,
         destination TEXT, timefetched TEXT, fare REAL, airlinecode TEXT,
         distance INTEGER, lowestnonstopfare INTEGER, lowestnonstopairlines TEXT,
         currencycode TEXT, departuredate TEXT, returndate TEXT,
         pricepermile REAL, link TEXT)
     ''')
-    DB.commit()
+    FLIGHT_DB.commit()
 
 
 def closedatabase():
     """Quick and simple: Closes the DB."""
-    DB.close()
+    FLIGHT_DB.close()
