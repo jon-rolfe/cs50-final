@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 """
-Usage: project.py from to
-Given two cities, calculate the optimal city to meet in.
+Database logic for where2meet.
 """
 
 import json
