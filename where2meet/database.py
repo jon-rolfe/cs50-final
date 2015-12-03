@@ -9,7 +9,7 @@ import json
 import datetime
 import sqlite3
 
-DATABASE_NAME = 'data/flights.sqlite'
+DATABASE_NAME = '../data/flights.sqlite'
 DB = sqlite3.connect(DATABASE_NAME)
 CURSOR = DB.cursor()
 

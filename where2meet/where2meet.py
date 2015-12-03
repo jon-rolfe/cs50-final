@@ -10,16 +10,11 @@ import os
 import requests
 import base64
 import json
-import datetime
-import sqlite3
-import database
+from database import *
 from dateutil.parser import parse
 
 ENVIRONMENT = 'https://api.test.sabre.com'
 ACCESS_TOKEN = 0
-DATABASE_NAME = 'data/flights.sqlite'
-DB = sqlite3.connect(DATABASE_NAME)
-CURSOR = DB.cursor()
 
 
 def main(args):
