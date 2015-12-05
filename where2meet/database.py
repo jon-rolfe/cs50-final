@@ -79,20 +79,67 @@ def destroydatabase():
 def makedatabase():
     """Creates an SQLite DB if it doesn't already exist."""
     print 'Checking DB integrity...'
-    errors = FLIGHT_CURSOR.execute('PRAGMA quick_check')
-    print errors
+    FLIGHT_CURSOR.execute('PRAGMA quick_check')
+    print FLIGHT_CURSOR.fetchall()
 
-    # Create the table (if it doesn't already exist)
+    # Create the master flights table (if it doesn't already exist)
     FLIGHT_CURSOR.execute('''
-        CREATE TABLE if not exists flights(id INTEGER PRIMARY KEY, origin TEXT,
-        destination TEXT, timefetched TEXT, fare REAL, airlinecode TEXT,
-        distance INTEGER, lowestnonstopfare INTEGER, lowestnonstopairlines TEXT,
-        currencycode TEXT, departuredate TEXT, returndate TEXT,
-        pricepermile REAL, link TEXT)
+        CREATE TABLE if not exists `flights` (
+            `id` INTEGER PRIMARY KEY,
+            `origin` TEXT,
+            `destination` TEXT,
+            `timefetched` TEXT,
+            `fare` REAL,
+            `airlinecode` TEXT,
+            `distance` INTEGER,
+            `lowestnonstopfare` INTEGER,
+            `lowestnonstopairlines` TEXT,
+            `currencycode` TEXT, `departuredate` TEXT,
+            `returndate` TEXT,
+            `pricepermile` REAL,
+            `link` TEXT
+        )
     ''')
+
+    # Now create the pricing/logic table
+    FLIGHT_CURSOR.execute('''
+        CREATE TABLE if not exists `pricing` (
+            `id` INTEGER PRIMARY KEY,
+            `origin_a` TEXT,
+            `origin_b` TEXT,
+            `destination` TEXT,
+            `totalprice` REAL,
+            `inequality` REAL
+        )
+    ''')
+
     FLIGHT_DB.commit()
+
+# SELECT SUM(fare) FROM flights WHERE origin = 'ATL' AND destination =
+# 'BOS'  OR origin = 'ATL' AND destination = 'EWR'
+
+
+def balance(origin_a, origin_b, departdate, returndate):
+    origin_a = origin_a.encode('ascii', 'ignore')
+    FLIGHT_CURSOR.execute("""
+            SELECT destination FROM flights WHERE origin = ?
+        """, [origin_a])
+    data = FLIGHT_CURSOR.fetchall()
+
+    # First tackling origin_a destinations
+    for row in data:
+        print 'Row: ' + row[0]
+        FLIGHT_CURSOR.execute("""
+        SELECT SUM(fare)
+        FROM flights
+        WHERE origin = ? AND destination = ?
+        """, (origin_a, row[0].encode('ascii', 'ignore')))
+        # Get the result that the cursor is at (i.e., the fare)
+        fare = FLIGHT_CURSOR.fetchone()[0]
+        print 'Row Object:',
 
 
 def closedatabase():
     """Quick and simple: Closes the DB."""
     FLIGHT_DB.close()
+    AIRPORTS_DB.close()

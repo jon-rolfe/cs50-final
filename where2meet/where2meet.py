@@ -3,6 +3,7 @@
 """
 Usage: ./where2meet.py from to
 Given two cities, calculate the optimal city to meet in.
+This file handles the core calculation logic and user input.
 """
 
 import sys
@@ -59,6 +60,7 @@ def main(args):
                 break
     os.system('cls' if os.name == 'nt' else 'clear')
     print 'Please enter the date you would like to return on.'
+    # TODO: Refuse return dates > 16 days from depart date.
     while True:
         returndate = parse(
             raw_input('Form: Month Day Year (e.g. "December 10 2015")\n'), fuzzy=True)
@@ -101,6 +103,8 @@ def calculatemidpoint(origin_a, origin_b, departdate, returndate):
     print 'Querying the server about %s.' % origin_b
     results_b = destinations(origin_b, departdate, returndate)
 
+    print 'Calculating most balanced midpoint...'
+    fareslist = balance(origin_a, origin_b, departdate, returndate)
     # Should be the end of access to DB, so close it
     closedatabase()
 

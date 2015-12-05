@@ -94,3 +94,28 @@ def destinations(query, departdate, returndate):
     addtodb(data, query)
     # TODO: return condition should be bool for success and false for failure
     return True
+
+
+def fullsearch(query, departdate, returndate):
+    """Function that calls the InstaSearch SABRE API to manually get destinations"""
+    # TODO
+    if ACCESS_TOKEN == 0:
+        gettoken()
+
+    url = ENVIRONMENT + '/v1/shop/flights'
+    # destination =
+    params = {
+        'origin': query,
+        # 'destination':,
+        'departuredate': departdate.date(),
+        'returndate': returndate.date(),
+        'outboundflightstops': '3',
+        'inboundflightstops': '3',
+    }
+    header = {
+        'Authorization': ('Bearer %s' % ACCESS_TOKEN),
+    }
+
+    request = requests.get(url, headers=header, params=params)
+    data = request.json()
+    print data
