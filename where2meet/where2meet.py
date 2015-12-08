@@ -23,13 +23,19 @@ def main(args):
     if not args or len(args) != 2:
         print 'Usage: %s from to' % sys.argv[0]
         quit()
+    elif args[0] == args[1]:
+        print 'Must specify two unique destinations.'
+        quit()
+
+    # clear terminal
+    os.system('cls' if os.name == 'nt' else 'clear')
 
     # translate names -> airports
     origin_a = suggest(args[0])[0]
-    print 'Assuming %s meant %s (id: %s).' % (sys.argv[1], origin_a['name'], origin_a['id'])
+    print 'Assuming %s meant %s (id: %s).' % (args[0], origin_a['name'], origin_a['id'])
 
     origin_b = suggest(args[1])[0]
-    print 'Assuming %s meant %s (id: %s).' % (sys.argv[2], origin_b['name'], origin_a['id'])
+    print 'Assuming %s meant %s (id: %s).' % (args[1], origin_b['name'], origin_a['id'])
 
     # here on out, all we need is the ID portion
     origin_a = origin_a['id']
@@ -91,8 +97,23 @@ def main(args):
         origin_a, origin_b, departdate.strftime('%b %d, %Y'), returndate.strftime('%b %d, %Y')))
     calculatemidpoint(origin_a, origin_b, departdate, returndate)
 
-    print 'Suggested destinations:'
+    print 'Top suggested destinations:'
+    movecursor()
     threefares = nextthree()
+    if threefares == False:
+        print 'We were unable to find any midpoints for your specified airports. So sorry!'
+        quit()
+
+    while True:
+        more = raw_input(
+            'Type "m" for more results. Type anything else to exit.\n')
+        if more == 'm':
+            os.system('cls' if os.name == 'nt' else 'clear')
+            if nextthree() == False:
+                print 'No more results.'
+                break
+        else:
+            break
 
     # Should be the end of access to DB, so close it
     closedatabase()
@@ -116,7 +137,5 @@ def calculatemidpoint(origin_a, origin_b, departdate, returndate):
 
 
 if __name__ == "__main__":
-    # clear terminal
-    os.system('cls' if os.name == 'nt' else 'clear')
     # call main
     main(sys.argv[1:])

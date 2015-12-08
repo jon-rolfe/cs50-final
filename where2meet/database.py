@@ -16,78 +16,13 @@ AIRPORTS_DB = sqlite3.connect(AIRPORTS_DB_NAME)
 AIRPORTS_CURSOR = AIRPORTS_DB.cursor()
 
 
-def addtodb(data, origin):
-    """Function that adds JSON data retrieved from SABRE to SQLite DB."""
-
-    # for debugging purposes, erase + write data to file
-    data_out = open('./results.json', 'w')
-    data_out.truncate()
-    data_out.close()
-    with open('./results.json', 'w') as outfile:
-        json.dump(data, outfile, indent=1)
-
-    # The only real data variation we should have is whether there's a lowest
-    # nonstop fare that's different from the lowest fare
-    for fare in data:
-        # For some reason, the API sometimes returns useless/skippable results
-        try:
-            aircodes = ''.join(fare['LowestFare']['AirlineCodes'])
-        except:
-            continue
-        try:
-            # This next line will trigger an error if there are no nonstops
-            nonstopcodes = ''.join(fare['LowestNonStopFare']['AirlineCodes'])
-            FLIGHT_CURSOR.execute('''
-                INSERT INTO flights (origin, destination, timefetched, fare,
-                airlinecode, distance, lowestnonstopfare, lowestnonstopairlines,
-                currencycode, departuredate, returndate, pricepermile, link)
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (origin.encode('ascii', 'ignore'), fare['DestinationLocation'], datetime.datetime.now(),
-                  fare['LowestFare']['Fare'], aircodes.encode(
-                      'ascii', 'ignore'),
-                  fare['Distance'], fare['LowestNonStopFare']['Fare'],
-                  nonstopcodes.encode('ascii', 'ignore'), fare['CurrencyCode'],
-                  fare['DepartureDateTime'], fare['ReturnDateTime'],
-                  fare['PricePerMile'], fare['Links'][0]['href'].encode('ascii', 'ignore')))
-        except (TypeError, KeyError):
-            FLIGHT_CURSOR.execute('''
-                INSERT INTO flights (origin, destination, timefetched, fare,
-                airlinecode, distance, currencycode,
-                departuredate, returndate, pricepermile, link)
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (origin.encode('ascii', 'ignore'), fare['DestinationLocation'], datetime.datetime.now(),
-                  fare['LowestFare']['Fare'], aircodes.encode(
-                      'ascii', 'ignore'),
-                  fare['Distance'], fare['CurrencyCode'],
-                  fare['DepartureDateTime'], fare['ReturnDateTime'],
-                  fare['PricePerMile'], fare['Links'][0]['href'].encode('ascii', 'ignore')))
-
-    # Finally, commit all that to the DB
-    FLIGHT_DB.commit()
-
-
-def destroydatabase():
-    """If something goes wrong, drop the flights DB and make a new one."""
-
-    # Drop tables, commit, make a new one.
-    FLIGHT_CURSOR.execute('''
-        DROP TABLE IF EXISTS flights
-    ''')
-    FLIGHT_CURSOR.execute('''
-        DROP TABLE IF EXISTS pricing
-    ''')
-    FLIGHT_DB.commit()
-
-    makedatabase()
-
-
-def makedatabase():
+def initdatabase():
     """Creates an SQLite DB if it doesn't already exist."""
     print 'Checking DB integrity...'
     FLIGHT_CURSOR.execute('PRAGMA quick_check')
     AIRPORTS_CURSOR.execute('PRAGMA quick_check')
     print 'Flight DB Status: %s' % FLIGHT_CURSOR.fetchall()[0]
-    print 'Airports DB Status: %s' % AIRPORT_CURSOR.fetchall()[0]
+    print 'Airports DB Status: %s' % AIRPORTS_CURSOR.fetchall()[0]
 
     # Create the master flights table (if it doesn't already exist)
     FLIGHT_CURSOR.execute('''
@@ -123,8 +58,71 @@ def makedatabase():
 
     FLIGHT_DB.commit()
 
-# SELECT SUM(fare) FROM flights WHERE origin = 'ATL' AND destination =
-# 'BOS'  OR origin = 'ATL' AND destination = 'EWR'
+
+def destroydatabase():
+    """If something goes wrong, drop the flights DB and make a new one."""
+
+    # Drop tables, commit, make a new one.
+    FLIGHT_CURSOR.execute('''
+        DROP TABLE IF EXISTS flights
+    ''')
+    FLIGHT_CURSOR.execute('''
+        DROP TABLE IF EXISTS pricing
+    ''')
+    FLIGHT_DB.commit()
+
+    initdatabase()
+
+
+def addtodb(data, origin):
+    """Function that adds JSON data retrieved from SABRE to SQLite DB."""
+
+    # for debugging purposes, erase + write data to file
+    data_out = open('./results.json', 'w')
+    data_out.truncate()
+    data_out.close()
+    with open('./results.json', 'w') as outfile:
+        json.dump(data, outfile, indent=1)
+
+    # The only real data variation we should have is whether there's a lowest
+    # nonstop fare that's different from the lowest fare
+    for fare in data:
+        # For some reason, the API sometimes returns useless/skippable results
+        try:
+            aircodes = ''.join(fare['LowestFare']['AirlineCodes'])
+        except:
+            continue
+        try:
+            # This next line will trigger an error if there are no nonstops
+            nonstopcodes = ''.join(fare['LowestNonStopFare']['AirlineCodes'])
+            FLIGHT_CURSOR.execute('''
+                INSERT INTO flights (origin, destination, timefetched, fare,
+                airlinecode, distance, lowestnonstopfare, lowestnonstopairlines,
+                currencycode, departuredate, returndate, pricepermile, link)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (origin.encode('iso-8859-1', 'replace'), fare['DestinationLocation'], datetime.datetime.now(),
+                  fare['LowestFare']['Fare'], aircodes.encode(
+                      'ascii', 'ignore'),
+                  fare['Distance'], fare['LowestNonStopFare']['Fare'],
+                  nonstopcodes.encode(
+                      'iso-8859-1', 'replace'), fare['CurrencyCode'],
+                  fare['DepartureDateTime'], fare['ReturnDateTime'],
+                  fare['PricePerMile'], fare['Links'][0]['href'].encode('iso-8859-1', 'replace')))
+        except (TypeError, KeyError):
+            FLIGHT_CURSOR.execute('''
+                INSERT INTO flights (origin, destination, timefetched, fare,
+                airlinecode, distance, currencycode,
+                departuredate, returndate, pricepermile, link)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (origin.encode('iso-8859-1', 'replace'), fare['DestinationLocation'], datetime.datetime.now(),
+                  fare['LowestFare']['Fare'], aircodes.encode(
+                      'ascii', 'ignore'),
+                  fare['Distance'], fare['CurrencyCode'],
+                  fare['DepartureDateTime'], fare['ReturnDateTime'],
+                  fare['PricePerMile'], fare['Links'][0]['href'].encode('iso-8859-1', 'replace')))
+
+    # Finally, commit all that to the DB
+    FLIGHT_DB.commit()
 
 
 def addpricing(origin_a, origin_b, departdate, returndate):
@@ -171,31 +169,40 @@ def addpricing(origin_a, origin_b, departdate, returndate):
     FLIGHT_DB.commit()
 
 
+def movecursor():
+    FLIGHT_CURSOR.execute("""
+            SELECT * FROM pricing ORDER BY (inequality*2 + totalprice)
+        """)
+
+
 def nextthree():
     from apirequests import suggest
     """Function that fetches the next 3 best fares."""
-    # inequality^2 is to heavily prefer fares with lower inequalities.
-    FLIGHT_CURSOR.execute("""
-            SELECT * FROM pricing ORDER BY (inequality*inequality + totalprice)
-        """)
 
     i = 1
     while i < 4:
         data = FLIGHT_CURSOR.fetchone()
-
+        if data is None:
+            return False
         # To reduce unneccesary API calls, grab the corresponding name from
-        # airport DB.
+        # airport DB. Also, data[3] = destination code
+        AIRPORTS_CURSOR.execute("""
+            SELECT * FROM airports WHERE iata_code = ?
+        """, (data[3],))
 
-        AIPORTS_CURSOR.execute("""
-            SELECT name FROM flights WHERE iata_code = ?
-        """, data['destination'])
-        name = AIRPORTS_CURSOR.fetchone()[0]
+        name = AIRPORTS_CURSOR.fetchone()
 
-        print 'Name:', name
-        print 'ID:', data['destination']
-        print 'Total Trip Price:', data['totalprice']
-        print 'Inequality of Fares', data['inequality']
+        print 'Destination #%d:' % i
+        print '\tName:', name[3].encode('iso-8859-1', 'replace')
+        if 'US' not in name[8]:
+            print '\tCountry:', name[8]
+        print '\tID:', data[3]
+        print '\tTotal Trip Price: $%d' % data[4]
+        print '\tInequality of Fares: $%d' % data[5]
+        print ''
         i = i + 1
+
+    return True
 
 
 def closedatabase():
