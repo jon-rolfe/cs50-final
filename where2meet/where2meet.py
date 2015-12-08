@@ -25,8 +25,15 @@ def main(args):
         quit()
 
     # translate names -> airports
-    origin_a = suggest(args[0])
-    origin_b = suggest(args[1])
+    origin_a = suggest(args[0])[0]
+    print 'Assuming %s meant %s (id: %s).' % (sys.argv[1], origin_a['name'], origin_a['id'])
+
+    origin_b = suggest(args[1])[0]
+    print 'Assuming %s meant %s (id: %s).' % (sys.argv[2], origin_b['name'], origin_a['id'])
+
+    # here on out, all we need is the ID portion
+    origin_a = origin_a['id']
+    origin_b = origin_b['id']
 
     # double check origins
     print 'Origin A: %s\nOrigin B: %s' % (origin_a, origin_b)
@@ -84,11 +91,16 @@ def main(args):
         origin_a, origin_b, departdate.strftime('%b %d, %Y'), returndate.strftime('%b %d, %Y')))
     calculatemidpoint(origin_a, origin_b, departdate, returndate)
 
+    print 'Suggested destinations:'
+    threefares = nextthree()
+
+    # Should be the end of access to DB, so close it
+    closedatabase()
+
 
 def calculatemidpoint(origin_a, origin_b, departdate, returndate):
     """Attempts to calculate the best midpoint through which both parties could pass."""
-    # DEBUG: Destroy DB every run. (This fn makes a new one.)
-    makedatabase()
+    # DEBUG: Destroy and remake DB every run.
     destroydatabase()
 
     # now: throw the query through the destinations engine
@@ -100,9 +112,7 @@ def calculatemidpoint(origin_a, origin_b, departdate, returndate):
     results_b = destinations(origin_b, departdate, returndate)
 
     print 'Calculating most balanced midpoint...'
-    fareslist = balance(origin_a, origin_b, departdate, returndate)
-    # Should be the end of access to DB, so close it
-    closedatabase()
+    fareslist = addpricing(origin_a, origin_b, departdate, returndate)
 
 
 if __name__ == "__main__":

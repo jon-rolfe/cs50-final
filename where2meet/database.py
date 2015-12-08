@@ -67,11 +67,14 @@ def addtodb(data, origin):
 
 
 def destroydatabase():
-    """If something goes wrong, drop the DB and make a new one."""
+    """If something goes wrong, drop the flights DB and make a new one."""
 
-    # Drop table, commit, make a new one.
+    # Drop tables, commit, make a new one.
     FLIGHT_CURSOR.execute('''
-        DROP TABLE flights
+        DROP TABLE IF EXISTS flights
+    ''')
+    FLIGHT_CURSOR.execute('''
+        DROP TABLE IF EXISTS pricing
     ''')
     FLIGHT_DB.commit()
 
@@ -82,7 +85,9 @@ def makedatabase():
     """Creates an SQLite DB if it doesn't already exist."""
     print 'Checking DB integrity...'
     FLIGHT_CURSOR.execute('PRAGMA quick_check')
-    print 'Status: %s' % FLIGHT_CURSOR.fetchall()[0]
+    AIRPORTS_CURSOR.execute('PRAGMA quick_check')
+    print 'Flight DB Status: %s' % FLIGHT_CURSOR.fetchall()[0]
+    print 'Airports DB Status: %s' % AIRPORT_CURSOR.fetchall()[0]
 
     # Create the master flights table (if it doesn't already exist)
     FLIGHT_CURSOR.execute('''
@@ -111,7 +116,8 @@ def makedatabase():
             `origin_b` TEXT,
             `destination` TEXT,
             `totalprice` REAL,
-            `inequality` REAL
+            `inequality` REAL,
+            UNIQUE (`origin_a`,`origin_b`,`destination`) ON CONFLICT IGNORE
         )
     ''')
 
@@ -121,40 +127,75 @@ def makedatabase():
 # 'BOS'  OR origin = 'ATL' AND destination = 'EWR'
 
 
-def balance(origin_a, origin_b, departdate, returndate):
+def addpricing(origin_a, origin_b, departdate, returndate):
+    """Function that takes raw pricing data and gets useful pricing info."""
+    # Grab all data and put it into a python object
     FLIGHT_CURSOR.execute("""
             SELECT destination FROM flights
         """)
     data = FLIGHT_CURSOR.fetchall()
 
+    # Add all pair rows into pricing DB.
     for row in data:
-        # print 'Row: ' + row[0]
+        # Get the rows for origin A -> dest, put it into fare_A
         FLIGHT_CURSOR.execute("""
             SELECT SUM(fare)
             FROM flights
             WHERE origin = ? AND destination = ?
-        """, (origin_a, row[0].encode('ascii', 'ignore')))
-
-        # Get the result that the cursor is at (i.e., the fare)
+        """, (origin_a, row[0]))
         fare_A = FLIGHT_CURSOR.fetchone()[0]
 
-        #
+        # Repeat for origin B -> dest
         FLIGHT_CURSOR.execute("""
             SELECT SUM(fare)
             FROM flights
             WHERE origin = ? AND destination = ?
-        """, (origin_b, row[0].encode('ascii', 'ignore')))
+        """, (origin_b, row[0]))
         fare_B = FLIGHT_CURSOR.fetchone()[0]
 
-        # if there's no matching pair, just go on to the next one—it's useless
-        if fare_A or fare_B = 'None'
+        # if there's no matching pair, just go on to the next one - it's
+        # effectively useless
+        if fare_A is None or fare_B is None:
             continue
+
+        inequality = round((fare_A - fare_B), 2)
+        inequality = abs(inequality)
 
         FLIGHT_CURSOR.execute("""
             INSERT INTO pricing (origin_a, origin_b, destination, totalprice,
             inequality)
-            VALUES ()
+            VALUES (?, ?, ?, ?, ?)
+        """, (origin_a, origin_b, row[0], round((fare_A + fare_B), 2), inequality))
+
+    # Now, actually commit it to the DB
+    FLIGHT_DB.commit()
+
+
+def nextthree():
+    from apirequests import suggest
+    """Function that fetches the next 3 best fares."""
+    # inequality^2 is to heavily prefer fares with lower inequalities.
+    FLIGHT_CURSOR.execute("""
+            SELECT * FROM pricing ORDER BY (inequality*inequality + totalprice)
         """)
+
+    i = 1
+    while i < 4:
+        data = FLIGHT_CURSOR.fetchone()
+
+        # To reduce unneccesary API calls, grab the corresponding name from
+        # airport DB.
+
+        AIPORTS_CURSOR.execute("""
+            SELECT name FROM flights WHERE iata_code = ?
+        """, data['destination'])
+        name = AIRPORTS_CURSOR.fetchone()[0]
+
+        print 'Name:', name
+        print 'ID:', data['destination']
+        print 'Total Trip Price:', data['totalprice']
+        print 'Inequality of Fares', data['inequality']
+        i = i + 1
 
 
 def closedatabase():

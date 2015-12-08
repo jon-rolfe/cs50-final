@@ -4,8 +4,6 @@ API request logic for where2meet.
 
 import requests
 import base64
-from where2meet import *
-from database import *
 
 ENVIRONMENT = 'https://api.test.sabre.com'
 ACCESS_TOKEN = 0
@@ -61,19 +59,14 @@ def suggest(query):
     if data['numFound'] == 0:
         print 'No results found.'
         return False
-    else:
-        print '%d results found.' % data['numFound']
 
-    for entry in data['docs']:
-        print 'Did you mean %s (id: %s)?' % (entry['name'], entry['id'])
-
-    print 'Assuming %s meant %s (id: %s).' % (query, data['docs'][0]['name'], data['docs'][0]['id'])
-    result = data['docs'][0]['id']
-    return result
+    return data['docs']
 
 
 def destinations(query, departdate, returndate):
     """Function that actually calls the SABRE API to get all destinations."""
+    from database import addtodb
+
     # if there isn't already an access token generated, do so
     if ACCESS_TOKEN == 0:
         gettoken()
