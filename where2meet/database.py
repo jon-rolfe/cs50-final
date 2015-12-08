@@ -42,23 +42,25 @@ def addtodb(data, origin):
                 airlinecode, distance, lowestnonstopfare, lowestnonstopairlines,
                 currencycode, departuredate, returndate, pricepermile, link)
                 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (origin, fare['DestinationLocation'], datetime.datetime.now(),
-                  fare['LowestFare']['Fare'], aircodes,
+            ''', (origin.encode('ascii', 'ignore'), fare['DestinationLocation'], datetime.datetime.now(),
+                  fare['LowestFare']['Fare'], aircodes.encode(
+                      'ascii', 'ignore'),
                   fare['Distance'], fare['LowestNonStopFare']['Fare'],
-                  nonstopcodes, fare['CurrencyCode'],
+                  nonstopcodes.encode('ascii', 'ignore'), fare['CurrencyCode'],
                   fare['DepartureDateTime'], fare['ReturnDateTime'],
-                  fare['PricePerMile'], fare['Links'][0]['href']))
+                  fare['PricePerMile'], fare['Links'][0]['href'].encode('ascii', 'ignore')))
         except (TypeError, KeyError):
             FLIGHT_CURSOR.execute('''
                 INSERT INTO flights (origin, destination, timefetched, fare,
                 airlinecode, distance, currencycode,
                 departuredate, returndate, pricepermile, link)
                 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (origin, fare['DestinationLocation'], datetime.datetime.now(),
-                  fare['LowestFare']['Fare'], aircodes,
+            ''', (origin.encode('ascii', 'ignore'), fare['DestinationLocation'], datetime.datetime.now(),
+                  fare['LowestFare']['Fare'], aircodes.encode(
+                      'ascii', 'ignore'),
                   fare['Distance'], fare['CurrencyCode'],
                   fare['DepartureDateTime'], fare['ReturnDateTime'],
-                  fare['PricePerMile'], fare['Links'][0]['href']))
+                  fare['PricePerMile'], fare['Links'][0]['href'].encode('ascii', 'ignore')))
 
     # Finally, commit all that to the DB
     FLIGHT_DB.commit()
@@ -80,7 +82,7 @@ def makedatabase():
     """Creates an SQLite DB if it doesn't already exist."""
     print 'Checking DB integrity...'
     FLIGHT_CURSOR.execute('PRAGMA quick_check')
-    print FLIGHT_CURSOR.fetchall()
+    print 'Status: %s' % FLIGHT_CURSOR.fetchall()[0]
 
     # Create the master flights table (if it doesn't already exist)
     FLIGHT_CURSOR.execute('''
@@ -120,23 +122,39 @@ def makedatabase():
 
 
 def balance(origin_a, origin_b, departdate, returndate):
-    origin_a = origin_a.encode('ascii', 'ignore')
     FLIGHT_CURSOR.execute("""
-            SELECT destination FROM flights WHERE origin = ?
-        """, [origin_a])
+            SELECT destination FROM flights
+        """)
     data = FLIGHT_CURSOR.fetchall()
 
-    # First tackling origin_a destinations
     for row in data:
-        print 'Row: ' + row[0]
+        # print 'Row: ' + row[0]
         FLIGHT_CURSOR.execute("""
-        SELECT SUM(fare)
-        FROM flights
-        WHERE origin = ? AND destination = ?
+            SELECT SUM(fare)
+            FROM flights
+            WHERE origin = ? AND destination = ?
         """, (origin_a, row[0].encode('ascii', 'ignore')))
+
         # Get the result that the cursor is at (i.e., the fare)
-        fare = FLIGHT_CURSOR.fetchone()[0]
-        print 'Row Object:',
+        fare_A = FLIGHT_CURSOR.fetchone()[0]
+
+        #
+        FLIGHT_CURSOR.execute("""
+            SELECT SUM(fare)
+            FROM flights
+            WHERE origin = ? AND destination = ?
+        """, (origin_b, row[0].encode('ascii', 'ignore')))
+        fare_B = FLIGHT_CURSOR.fetchone()[0]
+
+        # if there's no matching pair, just go on to the next one—it's useless
+        if fare_A or fare_B = 'None'
+            continue
+
+        FLIGHT_CURSOR.execute("""
+            INSERT INTO pricing (origin_a, origin_b, destination, totalprice,
+            inequality)
+            VALUES ()
+        """)
 
 
 def closedatabase():

@@ -87,13 +87,9 @@ def main(args):
 
 def calculatemidpoint(origin_a, origin_b, departdate, returndate):
     """Attempts to calculate the best midpoint through which both parties could pass."""
-    # DEBUG: Destroy DB every run. (This fn makes a new one, but this
-    # statement won't be here for long and it doesn't hurt to run makedb
-    # again.)
+    # DEBUG: Destroy DB every run. (This fn makes a new one.)
     makedatabase()
     destroydatabase()
-
-    # make a DB, if it doesn't already exist
 
     # now: throw the query through the destinations engine
     print 'Querying the server about %s.' % origin_a
