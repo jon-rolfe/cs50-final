@@ -1,6 +1,6 @@
 /key
 
-*.sqlite
+flights.sqlite
 
 *.json
 
