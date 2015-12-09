@@ -85,9 +85,8 @@ def main():
     print 'Please enter the date you would like to meet on.'
     while True:
         try:
-            departdate = raw_input(
-                'Form: Month Day Year (e.g. "December 8 2015")\n')
-            departdate = parse(departdate, fuzzy=True)
+            departdate = parse(raw_input(
+                'Form: Month Day Year (e.g. "December 8 2015")\n'), fuzzy=True)
         except:
             print 'You must enter a valid date.'
             continue
@@ -105,9 +104,8 @@ def main():
 
     while True:
         try:
-            returndate = raw_input(
-                'Form: Month Day Year (e.g. "December 10 2015")\n')
-            returndate = parse(returndate, fuzzy=True)
+            returndate = parse(raw_input(
+                'Form: Month Day Year (e.g. "December 10 2015")\n'), fuzzy=True)
         except:
             print 'You must enter a valid date.'
             continue

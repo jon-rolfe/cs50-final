@@ -7,6 +7,7 @@ Database logic for where2meet.
 import json
 import datetime
 import sqlite3
+import sys
 
 FLIGHTS_DB_NAME = '../data/flights.sqlite'
 FLIGHT_DB = sqlite3.connect(FLIGHTS_DB_NAME)
@@ -21,8 +22,12 @@ def initdatabase():
     print 'Checking DB integrity...'
     FLIGHT_CURSOR.execute('PRAGMA quick_check')
     AIRPORTS_CURSOR.execute('PRAGMA quick_check')
-    print 'Flight DB Status: %s' % FLIGHT_CURSOR.fetchall()[0]
-    print 'Airports DB Status: %s' % AIRPORTS_CURSOR.fetchall()[0]
+    if FLIGHT_CURSOR.fetchone()[0] != 'ok':
+        print 'Due to a problem, the database must be rebuilt.'
+        destroydatabase()
+    elif AIRPORTS_CURSOR.fetchone()[0] != 'ok':
+        print 'There is an issue with the airports database.\n' \
+              'Please remove and re-download this program.'
 
     # Create the master flights table (if it doesn't already exist)
     FLIGHT_CURSOR.execute('''
@@ -222,4 +227,4 @@ def closeandquit(*_):
     FLIGHT_DB.close()
     AIRPORTS_DB.close()
     print ''
-    quit()
+    sys.exit(0)
