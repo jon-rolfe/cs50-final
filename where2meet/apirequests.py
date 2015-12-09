@@ -64,6 +64,7 @@ def suggest(query):
 
 def destinations(query, departdate, returndate):
     """Function that actually calls the SABRE API to get all destinations."""
+    # delayed load to reduce occasional python import wonkiness
     from database import addtodb
 
     # if there isn't already an access token generated, do so
@@ -87,30 +88,39 @@ def destinations(query, departdate, returndate):
         return False
 
     addtodb(data, query)
-    # TODO: return condition should be bool for success and false for failure
     return True
 
 
 def fullsearch(query, departdate, returndate):
     """Function that calls the InstaSearch SABRE API to manually get destinations"""
-    # TODO
+    # delayed loading plays better with python for whatever reason
+    from database import numberofairports, nextairport, movecursor
     if ACCESS_TOKEN == 0:
         gettoken()
 
-    url = ENVIRONMENT + '/v1/shop/flights'
-    # destination =
-    params = {
-        'origin': query,
-        # 'destination':,
-        'departuredate': departdate.date(),
-        'returndate': returndate.date(),
-        'outboundflightstops': '3',
-        'inboundflightstops': '3',
-    }
-    header = {
-        'Authorization': ('Bearer %s' % ACCESS_TOKEN),
-    }
+    # get # of big airports in NA, move cursor to right pos in DB
+    airportcount = numberofairports()
+    movecursor('airports')
+    querynumber = 1
 
-    request = requests.get(url, headers=header, params=params)
-    data = request.json()
-    print data
+    # grab next airport to look up
+    destination = nextairport()
+    print destination
+    if destination is not False:
+        url = ENVIRONMENT + '/v1/shop/flights'
+        # destination =
+        params = {
+            'origin': query,
+            'destination': destination,
+            'departuredate': departdate.date(),
+            'returndate': returndate.date(),
+        }
+        header = {
+            'Authorization': ('Bearer %s' % ACCESS_TOKEN),
+        }
+        print '\rRequest [%s of %s]' % (querynumber, airportcount)
+        request = requests.get(url, headers=header, params=params)
+        data = request.json()
+        print request
+        print data
+        querynumber = querynumber + 1

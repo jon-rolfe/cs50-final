@@ -174,9 +174,15 @@ def addpricing(origin_a, origin_b, departdate, returndate):
     FLIGHT_DB.commit()
 
 
-def movecursor():
-    FLIGHT_CURSOR.execute("""
-            SELECT * FROM pricing ORDER BY (inequality*2 + totalprice)
+def movecursor(flag):
+    if flag == 'pricing':
+        FLIGHT_CURSOR.execute("""
+                SELECT * FROM pricing ORDER BY (inequality*2 + totalprice)
+            """)
+    if flag == 'airports':
+        AIRPORTS_CURSOR.execute("""
+            SELECT iata_code FROM airports
+            WHERE type = 'large_airport' AND continent = 'NA'
         """)
 
 
@@ -193,7 +199,26 @@ def validate(query):
         return True
 
 
-def nextthree():
+def numberofairports():
+    AIRPORTS_CURSOR.execute("""
+        SELECT COUNT(*) FROM
+        (SELECT iata_code FROM airports
+        WHERE type = 'large_airport' AND continent = 'NA')
+    """)
+    return AIRPORTS_CURSOR.fetchone()[0]
+
+
+def nextairport():
+    airport = ''
+    # filter out blank results
+    while airport is '':
+        airport = AIRPORTS_CURSOR.fetchone()[0].encode('iso-8859-1', 'replace')
+    if airport is None:
+        return False
+    return airport
+
+
+def printthree():
     from apirequests import suggest
     """Function that fetches the next 3 best fares."""
     i = 1
@@ -214,7 +239,7 @@ def nextthree():
         if 'US' not in name[8]:
             print '\tCountry:', name[8]
         print '\tID:', data[3]
-        print '\tTotal Trip Price: $%d' % data[4]
+        print '\tTotal Itinerary Price: $%d' % data[4]
         print '\tInequality of Fares: $%d' % data[5]
         print ''
         i = i + 1
