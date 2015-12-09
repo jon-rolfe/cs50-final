@@ -12,6 +12,7 @@ import requests
 import base64
 import json
 import argparse
+import signal
 from database import *
 from apirequests import *
 from dateutil.parser import parse
@@ -19,24 +20,29 @@ from dateutil.parser import parse
 
 def main():
     """Handles user input and passes it to relevant functions."""
-    parser = argparse.ArgumentParser(
+    cli_parse = argparse.ArgumentParser(
         description='Calculates optimal city to meet in.')
 
-    parser.add_argument('-a', '--origin-1', action='store',
-                        dest='origin_a', help='one of the two origin cities', required=True)
-    parser.add_argument('-b', '--origin-2', action='store',
-                        dest='origin_b', help='the other origin city', required=True)
-    parser.add_argument('--skip-check', action='store_true', dest='skip', default=False,
-                        help='skips checking origin validities. This could break things!')
-    parser.add_argument('-d', '--departure', action='store',
-                        required=False, dest='depart', help='specify the departure date')
-    parser.add_argument('-r', '--return', action='store',
-                        required=False, dest='return', help='specify the return date')
+    cli_parse.add_argument('-a', '--origin-1', action='store',
+                           dest='origin_a', help='one of the two origin cities', required=True)
+    cli_parse.add_argument('-b', '--origin-2', action='store',
+                           dest='origin_b', help='the other origin city', required=True)
+    cli_parse.add_argument('--skip-check', action='store_true', dest='skip', default=False,
+                           help='skips checking origin validities. This could break things!')
+    cli_parse.add_argument('-d', '--departure', action='store',
+                           required=False, dest='departdate', help='specify the departure date')
+    cli_parse.add_argument('-r', '--return', action='store',
+                           required=False, dest='returndate', help='specify the return date')
 
-    args = parser.parse_args()
+    args = cli_parse.parse_args()
 
-    parse(args.depart, fuzzy=True)
+    # somewhat confusingly, this parse() is the datetime parse (not
+    # argparse)
+    departdate = parse(args.departdate, fuzzy=True)
+    returndate = parse(args.returndate, fuzzy=True)
 
+    print departdate, returndate
+    os.system('pause')
     # clear terminal
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -49,8 +55,11 @@ def main():
         # here on out, all we need is the ID portion
         origin_a = origin_a['id']
         origin_b = origin_b['id']
+    else:
+        origin_a = args.origin_a
+        origin_b = args.origin_b
 
-    # double check origins
+    # double check origins with user
     print 'Origin A: %s\nOrigin B: %s' % (origin_a, origin_b)
     while True:
         correct = raw_input('Is this correct? (Y/N)\n')
@@ -81,15 +90,16 @@ def main():
                 break
     os.system('cls' if os.name == 'nt' else 'clear')
     print 'Please enter the date you would like to return on.'
-    # TODO: Refuse return dates > 16 days from depart date.
+
     while True:
         returndate = parse(
             raw_input('Form: Month Day Year (e.g. "December 10 2015")\n'), fuzzy=True)
         if (returndate < datetime.datetime.now() or
                 returndate > (datetime.datetime.now() + datetime.timedelta(192)) or
-                returndate < departdate):
+                returndate < departdate or (returndate - departdate) > datetime.timedelta(16)):
             print 'You must enter a date after your departure', \
-                  'that is no more than 192 days from now.'
+                  'that is no more than 192 days from now nor', \
+                  'more than 16 days past your departure date.'
         else:
             correct = raw_input('OK, so you want to return on %s? (Y/N)\n' %
                                 returndate.strftime('%A, %B %d, %Y'))
@@ -124,7 +134,7 @@ def main():
             break
 
     # Should be the end of access to DB, so close it
-    closedatabase()
+    closeandquit()
 
 
 def calculatemidpoint(origin_a, origin_b, departdate, returndate):
@@ -145,5 +155,7 @@ def calculatemidpoint(origin_a, origin_b, departdate, returndate):
 
 
 if __name__ == "__main__":
+    # make a SIGINT handler for ctrl-c, etc
+    signal.signal(signal.SIGINT, closeandquit)
     # call main
     main()

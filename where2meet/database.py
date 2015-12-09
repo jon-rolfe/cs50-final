@@ -205,7 +205,9 @@ def nextthree():
     return True
 
 
-def closedatabase():
-    """Quick and simple: Closes the DB."""
+def closeandquit(*_):
+    """Quick and simple: Closes the DB and quits. Discards all arguments."""
     FLIGHT_DB.close()
     AIRPORTS_DB.close()
+    print ''
+    quit()
