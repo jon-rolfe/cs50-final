@@ -175,10 +175,22 @@ def movecursor():
         """)
 
 
+def validate(query):
+    AIRPORTS_CURSOR.execute("""
+        SELECT * FROM airports WHERE iata_code = ?
+    """, [query])
+    value = AIRPORTS_CURSOR.fetchone()
+
+    # if there's no tables returned, invalid airport
+    if value is None:
+        return False
+    else:
+        return True
+
+
 def nextthree():
     from apirequests import suggest
     """Function that fetches the next 3 best fares."""
-
     i = 1
     while i < 4:
         data = FLIGHT_CURSOR.fetchone()
@@ -206,7 +218,7 @@ def nextthree():
 
 
 def closeandquit(*_):
-    """Quick and simple: Closes the DB and quits. Discards all arguments."""
+    """Quick and simple: Closes the DBs and quits. Discards all arguments."""
     FLIGHT_DB.close()
     AIRPORTS_DB.close()
     print ''

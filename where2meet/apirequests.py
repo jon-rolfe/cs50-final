@@ -57,7 +57,6 @@ def suggest(query):
     data = request.json()['Response']['grouped']['category:AIR']['doclist']
 
     if data['numFound'] == 0:
-        print 'No results found.'
         return False
 
     return data['docs']
@@ -84,6 +83,9 @@ def destinations(query, departdate, returndate):
     request = requests.get(url, headers=header, params=params)
     # TODO: Add non-200 response logic
     data = (request.json()).get('FareInfo')
+    if data is None:
+        return False
+
     addtodb(data, query)
     # TODO: return condition should be bool for success and false for failure
     return True
