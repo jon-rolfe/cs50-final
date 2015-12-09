@@ -11,53 +11,61 @@ import os
 import requests
 import base64
 import json
+import argparse
 from database import *
 from apirequests import *
 from dateutil.parser import parse
 
 
-def main(args):
+def main():
     """Handles user input and passes it to relevant functions."""
+    parser = argparse.ArgumentParser(
+        description='Calculates optimal city to meet in.')
 
-    # parse args
-    if not args or len(args) != 2:
-        print 'Usage: %s from to' % sys.argv[0]
-        quit()
-    elif args[0] == args[1]:
-        print 'Must specify two unique destinations.'
-        quit()
+    parser.add_argument('-a', '--origin-1', action='store',
+                        dest='origin_a', help='one of the two origin cities', required=True)
+    parser.add_argument('-b', '--origin-2', action='store',
+                        dest='origin_b', help='the other origin city', required=True)
+    parser.add_argument('--skip-check', action='store_true', dest='skip', default=False,
+                        help='skips checking origin validities. This could break things!')
+    parser.add_argument('-d', '--departure', action='store',
+                        required=False, dest='depart', help='specify the departure date')
+    parser.add_argument('-r', '--return', action='store',
+                        required=False, dest='return', help='specify the return date')
+
+    args = parser.parse_args()
+
+    parse(args.depart, fuzzy=True)
 
     # clear terminal
     os.system('cls' if os.name == 'nt' else 'clear')
 
-    # translate names -> airports
-    origin_a = suggest(args[0])[0]
-    print 'Assuming %s meant %s (id: %s).' % (args[0], origin_a['name'], origin_a['id'])
-
-    origin_b = suggest(args[1])[0]
-    print 'Assuming %s meant %s (id: %s).' % (args[1], origin_b['name'], origin_a['id'])
-
-    # here on out, all we need is the ID portion
-    origin_a = origin_a['id']
-    origin_b = origin_b['id']
+    if args.skip is True:
+        # translate names -> airports
+        origin_a = suggest(args.origin_a)
+        print 'Assuming %s meant %s (id: %s).' % (args[0], origin_a['name'], origin_a['id'])
+        origin_b = suggest(args.origin_b)
+        print 'Assuming %s meant %s (id: %s).' % (args[1], origin_b['name'], origin_a['id'])
+        # here on out, all we need is the ID portion
+        origin_a = origin_a['id']
+        origin_b = origin_b['id']
 
     # double check origins
     print 'Origin A: %s\nOrigin B: %s' % (origin_a, origin_b)
     while True:
         correct = raw_input('Is this correct? (Y/N)\n')
         if correct.lower() == 'y' or '\n':
-            print 'Great!'
             break
         elif correct.lower() == 'n':
-            print 'OK, please tweak your input.'
+            print 'Please tweak your input.'
             quit()
         else:
             print 'Invalid response.'
 
     # clear terminal
     os.system('cls' if os.name == 'nt' else 'clear')
-    '''
-    # figure out arrival/return dates of trip
+
+    # figure out arrival/return dates of trip if not specified in CL args
     print 'Please enter the date you would like to meet on.'
     while True:
         departdate = parse(
@@ -87,7 +95,7 @@ def main(args):
                                 returndate.strftime('%A, %B %d, %Y'))
             if correct.lower() == 'y':
                 break
-    '''
+
     # Debug defaults
     departdate = parse('december 8 2015')
     returndate = parse('december 10 2015')
@@ -138,4 +146,4 @@ def calculatemidpoint(origin_a, origin_b, departdate, returndate):
 
 if __name__ == "__main__":
     # call main
-    main(sys.argv[1:])
+    main()
