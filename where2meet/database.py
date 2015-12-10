@@ -19,7 +19,7 @@ AIRPORTS_CURSOR = AIRPORTS_DB.cursor()
 
 def initdatabase():
     """Creates an SQLite DB if it doesn't already exist."""
-    print 'Checking DB integrity...'
+    # Check DB integrity
     FLIGHT_CURSOR.execute('PRAGMA quick_check')
     AIRPORTS_CURSOR.execute('PRAGMA quick_check')
     if FLIGHT_CURSOR.fetchone()[0] != 'ok':
@@ -28,6 +28,7 @@ def initdatabase():
     elif AIRPORTS_CURSOR.fetchone()[0] != 'ok':
         print 'There is an issue with the airports database.\n' \
               'Please remove and re-download this program.'
+        closeandquit()
 
     # Create the master flights table (if it doesn't already exist)
     FLIGHT_CURSOR.execute('''
@@ -38,13 +39,8 @@ def initdatabase():
             `timefetched` TEXT,
             `fare` REAL,
             `airlinecode` TEXT,
-            `distance` INTEGER,
-            `lowestnonstopfare` INTEGER,
-            `lowestnonstopairlines` TEXT,
-            `currencycode` TEXT, `departuredate` TEXT,
-            `returndate` TEXT,
-            `pricepermile` REAL,
-            `link` TEXT
+            `departuredate` TEXT,
+            `returndate` TEXT
         )
     ''')
 
@@ -54,6 +50,10 @@ def initdatabase():
             `id` INTEGER PRIMARY KEY,
             `origin_a` TEXT,
             `origin_b` TEXT,
+            `a_price` REAL,
+            `b_price` REAL,
+            `a_code` TEXT,
+            `b_code` TEXT,
             `destination` TEXT,
             `totalprice` REAL,
             `inequality` REAL,
@@ -65,7 +65,7 @@ def initdatabase():
 
 
 def destroydatabase():
-    """If something goes wrong, drop the flights DB and make a new one."""
+    """Drops the DB tables and makes new ones."""
 
     # Drop tables, commit, make a new one.
     FLIGHT_CURSOR.execute('''
@@ -79,59 +79,58 @@ def destroydatabase():
     initdatabase()
 
 
-def addtodb(data, origin):
-    """Function that adds JSON data retrieved from SABRE to SQLite DB."""
+def addindividualfare(data):
+    """Function that adds the individually-fetched fare data to the DB."""
+    # for fare in data:
+    origin = data['AirItinerary']['OriginDestinationOptions']['OriginDestinationOption'][
+        0]['FlightSegment'][0]['DepartureAirport']['LocationCode'].encode('ascii', 'ignore')
+    destination = data['AirItinerary']['OriginDestinationOptions'][
+        'OriginDestinationOption'][0]['FlightSegment'][-1]['ArrivalAirport']['LocationCode'].encode('ascii', 'ignore')
+    aircode = data['TPA_Extensions']['ValidatingCarrier'][
+        'Code'].encode('ascii', 'ignore')
+    fare = data['AirItineraryPricingInfo']['PTC_FareBreakdowns'][
+        'PTC_FareBreakdown']['PassengerFare']['TotalFare']['Amount']
+    departdate = data['AirItinerary']['OriginDestinationOptions']['OriginDestinationOption'][
+        0]['FlightSegment'][0]['DepartureDateTime']
+    returndate = data['AirItinerary']['OriginDestinationOptions'][
+        'OriginDestinationOption'][-1]['FlightSegment'][-1]['ArrivalDateTime']
 
-    # for debugging purposes, erase + write data to file
-    data_out = open('./results.json', 'w')
-    data_out.truncate()
-    data_out.close()
-    with open('./results.json', 'w') as outfile:
-        json.dump(data, outfile, indent=1)
+    FLIGHT_CURSOR.execute('''
+        INSERT INTO flights (origin, destination, timefetched, fare,
+        airlinecode, departuredate, returndate)
+        VALUES(?, ?, ?, ?, ?, ?, ?)
+    ''', (origin, destination, datetime.datetime.now(), fare, aircode,
+          departdate, returndate))
 
+    FLIGHT_DB.commit()
+
+
+def adddestination(data, origin):
+    """Function that puts data retrieved from the Destinations API into the DB."""
     # The only real data variation we should have is whether there's a lowest
     # nonstop fare that's different from the lowest fare
     for fare in data:
-        # For some reason, the API sometimes returns useless/skippable results
+        # For some reason, the Destinations API sometimes returns
+        # useless/skippable results
         try:
-            aircodes = ''.join(fare['LowestFare']['AirlineCodes'])
+            aircode = ''.join(fare['LowestFare']['AirlineCodes'][0])
         except:
             continue
-        try:
-            # This next line will trigger an error if there are no nonstops
-            nonstopcodes = ''.join(fare['LowestNonStopFare']['AirlineCodes'])
-            FLIGHT_CURSOR.execute('''
-                INSERT INTO flights (origin, destination, timefetched, fare,
-                airlinecode, distance, lowestnonstopfare, lowestnonstopairlines,
-                currencycode, departuredate, returndate, pricepermile, link)
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (origin.encode('iso-8859-1', 'replace'), fare['DestinationLocation'], datetime.datetime.now(),
-                  fare['LowestFare']['Fare'], aircodes.encode(
-                      'ascii', 'ignore'),
-                  fare['Distance'], fare['LowestNonStopFare']['Fare'],
-                  nonstopcodes.encode(
-                      'iso-8859-1', 'replace'), fare['CurrencyCode'],
-                  fare['DepartureDateTime'], fare['ReturnDateTime'],
-                  fare['PricePerMile'], fare['Links'][0]['href'].encode('iso-8859-1', 'replace')))
-        except (TypeError, KeyError):
-            FLIGHT_CURSOR.execute('''
-                INSERT INTO flights (origin, destination, timefetched, fare,
-                airlinecode, distance, currencycode,
-                departuredate, returndate, pricepermile, link)
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (origin.encode('iso-8859-1', 'replace'), fare['DestinationLocation'], datetime.datetime.now(),
-                  fare['LowestFare']['Fare'], aircodes.encode(
-                      'ascii', 'ignore'),
-                  fare['Distance'], fare['CurrencyCode'],
-                  fare['DepartureDateTime'], fare['ReturnDateTime'],
-                  fare['PricePerMile'], fare['Links'][0]['href'].encode('iso-8859-1', 'replace')))
+
+        FLIGHT_CURSOR.execute('''
+            INSERT INTO flights (origin, destination, timefetched, fare,
+            airlinecode, departuredate, returndate)
+            VALUES(?, ?, ?, ?, ?, ?, ?)
+        ''', (origin.encode('iso-8859-1', 'replace'), fare['DestinationLocation'],
+              datetime.datetime.now(), fare['LowestFare']['Fare'],
+              aircode.encode('ascii', 'ignore'), fare['DepartureDateTime'], fare['ReturnDateTime']))
 
     # Finally, commit all that to the DB
     FLIGHT_DB.commit()
 
 
 def addpricing(origin_a, origin_b, departdate, returndate):
-    """Function that takes raw pricing data and gets useful pricing info."""
+    """Function that combines flights data and puts it in the 'pricing' DB."""
     # Grab all data and put it into a python object
     FLIGHT_CURSOR.execute("""
             SELECT destination FROM flights
@@ -140,35 +139,53 @@ def addpricing(origin_a, origin_b, departdate, returndate):
 
     # Add all pair rows into pricing DB.
     for row in data:
-        # Get the rows for origin A -> dest, put it into fare_A
+        # First, check to make sure that there are "pairs" of results
         FLIGHT_CURSOR.execute("""
             SELECT SUM(fare)
             FROM flights
             WHERE origin = ? AND destination = ?
         """, (origin_a, row[0]))
-        fare_A = FLIGHT_CURSOR.fetchone()[0]
-
-        # Repeat for origin B -> dest
+        check_A = FLIGHT_CURSOR.fetchone()[0]
         FLIGHT_CURSOR.execute("""
             SELECT SUM(fare)
             FROM flights
             WHERE origin = ? AND destination = ?
         """, (origin_b, row[0]))
-        fare_B = FLIGHT_CURSOR.fetchone()[0]
+        check_B = FLIGHT_CURSOR.fetchone()[0]
 
         # if there's no matching pair, just go on to the next one - it's
         # effectively useless
-        if fare_A is None or fare_B is None:
+        if check_A is None or check_B is None:
             continue
+        # otherwise, get more info about the paired flights from the DB
+        else:
+            FLIGHT_CURSOR.execute("""
+                SELECT *
+                FROM flights
+                WHERE origin = ? AND destination = ?
+            """, (origin_a, row[0]))
+            detailedrow = FLIGHT_CURSOR.fetchone()
+            a_fare = detailedrow[4]
+            a_aircode = detailedrow[5]
 
-        inequality = round((fare_A - fare_B), 2)
+            FLIGHT_CURSOR.execute("""
+                SELECT *
+                FROM flights
+                WHERE origin = ? AND destination = ?
+            """, (origin_b, row[0]))
+            detailedrow = FLIGHT_CURSOR.fetchone()
+            b_fare = detailedrow[4]
+            b_aircode = detailedrow[5]
+
+        inequality = round((a_fare - b_fare), 2)
         inequality = abs(inequality)
 
         FLIGHT_CURSOR.execute("""
-            INSERT INTO pricing (origin_a, origin_b, destination, totalprice,
-            inequality)
-            VALUES (?, ?, ?, ?, ?)
-        """, (origin_a, origin_b, row[0], round((fare_A + fare_B), 2), inequality))
+            INSERT INTO pricing(origin_a, origin_b, a_price, b_price, a_code,
+            b_code, destination, totalprice, inequality)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (origin_a, origin_b, a_fare, b_fare, a_aircode, b_aircode,
+              row[0], round((a_fare + b_fare), 2), inequality))
 
     # Now, actually commit it to the DB
     FLIGHT_DB.commit()
@@ -177,12 +194,13 @@ def addpricing(origin_a, origin_b, departdate, returndate):
 def movecursor(flag):
     if flag == 'pricing':
         FLIGHT_CURSOR.execute("""
-                SELECT * FROM pricing ORDER BY (inequality*2 + totalprice)
+                SELECT * FROM pricing ORDER BY(inequality * 2 + totalprice)
             """)
     if flag == 'airports':
         AIRPORTS_CURSOR.execute("""
             SELECT iata_code FROM airports
             WHERE type = 'large_airport' AND continent = 'NA'
+            ORDER BY iata_code
         """)
 
 
@@ -203,7 +221,7 @@ def numberofairports():
     AIRPORTS_CURSOR.execute("""
         SELECT COUNT(*) FROM
         (SELECT iata_code FROM airports
-        WHERE type = 'large_airport' AND continent = 'NA')
+        WHERE type='large_airport' AND continent='NA')
     """)
     return AIRPORTS_CURSOR.fetchone()[0]
 
@@ -230,17 +248,18 @@ def printthree():
         # airport DB. Also, data[3] = destination code
         AIRPORTS_CURSOR.execute("""
             SELECT * FROM airports WHERE iata_code = ?
-        """, (data[3],))
+        """, (data[7],))
 
         name = AIRPORTS_CURSOR.fetchone()
-
         print 'Destination #%d:' % i
         print '\tName:', name[3].encode('iso-8859-1', 'replace')
         if 'US' not in name[8]:
             print '\tCountry:', name[8]
-        print '\tID:', data[3]
-        print '\tTotal Itinerary Price: $%d' % data[4]
-        print '\tInequality of Fares: $%d' % data[5]
+        print '\tAirport ID:', data[2]
+        print '\t\t$%d from %s (Airline: %s)' % (data[3], data[1], data[5])
+        print '\t\t$%d from %s (Airline: %s)' % (data[4], data[2], data[6])
+        print '\tTotal Itinerary Price: $%d' % data[8]
+        print '\tInequality of Fares: $%d' % data[9]
         print ''
         i = i + 1
 

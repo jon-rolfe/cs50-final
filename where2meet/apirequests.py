@@ -4,6 +4,7 @@ API request logic for where2meet.
 
 import requests
 import base64
+import json
 
 ENVIRONMENT = 'https://api.test.sabre.com'
 ACCESS_TOKEN = 0
@@ -65,7 +66,7 @@ def suggest(query):
 def destinations(query, departdate, returndate):
     """Function that actually calls the SABRE API to get all destinations."""
     # delayed load to reduce occasional python import wonkiness
-    from database import addtodb
+    from database import adddestination
 
     # if there isn't already an access token generated, do so
     if ACCESS_TOKEN == 0:
@@ -87,14 +88,14 @@ def destinations(query, departdate, returndate):
     if data is None:
         return False
 
-    addtodb(data, query)
+    adddestination(data, query)
     return True
 
 
 def fullsearch(query, departdate, returndate):
     """Function that calls the InstaSearch SABRE API to manually get destinations"""
     # delayed loading plays better with python for whatever reason
-    from database import numberofairports, nextairport, movecursor
+    from database import numberofairports, nextairport, movecursor, addindividualfare
     if ACCESS_TOKEN == 0:
         gettoken()
 
@@ -104,23 +105,29 @@ def fullsearch(query, departdate, returndate):
     querynumber = 1
 
     # grab next airport to look up
-    destination = nextairport()
-    print destination
-    if destination is not False:
+    while True:
+        try:
+            destination = nextairport()
+        except TypeError:
+            break
         url = ENVIRONMENT + '/v1/shop/flights'
-        # destination =
         params = {
             'origin': query,
             'destination': destination,
             'departuredate': departdate.date(),
             'returndate': returndate.date(),
+            'passengercount': '1',
+            'limit': '1',
         }
         header = {
             'Authorization': ('Bearer %s' % ACCESS_TOKEN),
         }
-        print '\rRequest [%s of %s]' % (querynumber, airportcount)
+        print '\rSearch [%s of %s]' % (querynumber, airportcount),
         request = requests.get(url, headers=header, params=params)
-        data = request.json()
-        print request
-        print data
+        data = (request.json()).get('PricedItineraries')
+        # for debugging purposes, erase + write data to file
+        if request.status_code == 200:
+            with open('./results.json', 'w') as outfile:
+                json.dump(data, outfile, indent=1)
+            addindividualfare(data[0])
         querynumber = querynumber + 1

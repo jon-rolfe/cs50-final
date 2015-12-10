@@ -33,9 +33,15 @@ def main():
                            required=False, dest='departdate', help='specify the departure date')
     cli_parse.add_argument('-r', '--return', action='store',
                            required=False, dest='returndate', help='specify the return date (requires -d)')
+    cli_parse.add_argument('-f', '--fast', action='store_true',
+                           required=False, dest='fastmode', help='skip the slow-but-thorough full fare check')
 
     args = cli_parse.parse_args()
     departdate = returndate = None
+    fastmode = False
+    # if fast mode not specified, default to slow
+    if args.fastmode == True:
+        fastmode = True
 
     # somewhat confusingly, this parse() is the datetime parse (not
     # argparse) - but parse depart/return dates if specified in cli
@@ -132,15 +138,15 @@ def main():
                                     returndate.strftime('%A, %B %d, %Y'))
                 if correct.lower() == 'y' or '\n':
                     break
-    fullsearch(origin_a, departdate, returndate)
 
-    """
-    # clear terminal
+    # time to actually make the calls to the flight API!
     os.system('cls' if os.name == 'nt' else 'clear')
     print ('Working on your trip between %s and %s, departing on %s and returning on %s.' % (
         origin_a, origin_b, departdate.strftime('%b %d, %Y'), returndate.strftime('%b %d, %Y')))
-    calculatemidpoint(origin_a, origin_b, departdate, returndate)
+    calculate(origin_a, origin_b, departdate, returndate, fastmode)
 
+    # print the calculated results
+    os.system('cls' if os.name == 'nt' else 'clear')
     print 'Top suggested destinations:'
     movecursor('pricing')
     threefares = printthree()
@@ -159,25 +165,30 @@ def main():
                 break
 
     # Should be the end of access to DB, so close it
-    """
+
     closeandquit()
 
 
-def calculatemidpoint(origin_a, origin_b, departdate, returndate):
+def calculate(origin_a, origin_b, departdate, returndate, fastmode):
     """Attempts to calculate the best midpoint through which both parties could pass."""
     # DEBUG: Destroy and remake DB every run.
     destroydatabase()
 
-    # now: throw the query through the destinations engine
+    if fastmode != True:
+        print 'Full search can take a minute or two. Grab a Snickers.'
+
+    # now: throw the query through both APIs unless user specified to only go
+    # the fast route (i.e., not manually query things)
     print 'Querying the server about %s.' % origin_a
     results_a = destinations(origin_a, departdate, returndate)
+    if fastmode != True:
+        fullsearch(origin_a, departdate, returndate)
 
     # repeat query for 2nd origin
     print 'Querying the server about %s.' % origin_b
     results_b = destinations(origin_b, departdate, returndate)
-
-    if (results_a or results_b) == False:
-        error('One or both of the origins do not have scheduled air service.')
+    if fastmode != True:
+        fullsearch(origin_a, departdate, returndate)
 
     print 'Calculating most balanced midpoint...'
     fareslist = addpricing(origin_a, origin_b, departdate, returndate)
@@ -186,6 +197,7 @@ def calculatemidpoint(origin_a, origin_b, departdate, returndate):
 def error(errortext):
     print errortext
     closeandquit()
+
 
 if __name__ == "__main__":
     # make a SIGINT handler for ctrl-c, etc
