@@ -32,9 +32,7 @@ def gettoken():
     }
     payload = 'grant_type=client_credentials'
     request = requests.post(url, headers=auth, data=payload)
-    # TODO: Add non-200 response logic
     data = request.json()
-    # print json.dumps(data, indent = 4)
     ACCESS_TOKEN = data['access_token']
 
 
@@ -52,7 +50,6 @@ def suggest(query):
         'Authorization': ('Bearer %s' % ACCESS_TOKEN),
     }
     request = requests.get(url, headers=header, params=params)
-    # TODO: Add non-200 response logic
 
     # now actually act upon said data!
     data = request.json()['Response']['grouped']['category:AIR']['doclist']
@@ -83,7 +80,6 @@ def destinations(query, departdate, returndate):
         'Authorization': ('Bearer %s' % ACCESS_TOKEN),
     }
     request = requests.get(url, headers=header, params=params)
-    # TODO: Add non-200 response logic
     data = (request.json()).get('FareInfo')
     if data is None:
         return False
@@ -102,7 +98,6 @@ def fullsearch(query, departdate, returndate):
     # get # of big airports in NA, move cursor to right pos in DB
     airportcount = numberofairports()
     movecursor('airports')
-    querynumber = 1
 
     # grab next airport to look up
     while True:
@@ -122,12 +117,9 @@ def fullsearch(query, departdate, returndate):
         header = {
             'Authorization': ('Bearer %s' % ACCESS_TOKEN),
         }
-        print '\rSearch [%s of %s]' % (querynumber, airportcount),
         request = requests.get(url, headers=header, params=params)
         data = (request.json()).get('PricedItineraries')
-        # for debugging purposes, erase + write data to file
+
+        # if there are results, add them to the DB
         if request.status_code == 200:
-            with open('./results.json', 'w') as outfile:
-                json.dump(data, outfile, indent=1)
             addindividualfare(data[0])
-        querynumber = querynumber + 1

@@ -171,7 +171,8 @@ def main():
 
 def calculate(origin_a, origin_b, departdate, returndate, fastmode):
     """Attempts to calculate the best midpoint through which both parties could pass."""
-    # DEBUG: Destroy and remake DB every run.
+    # Because airline fares are so highly variable, I've found that the best
+    # course of action 99% of the time is to just fetch fresh data
     destroydatabase()
 
     if fastmode != True:

@@ -255,7 +255,7 @@ def printthree():
         print '\tName:', name[3].encode('iso-8859-1', 'replace')
         if 'US' not in name[8]:
             print '\tCountry:', name[8]
-        print '\tAirport ID:', data[2]
+        print '\tAirport ID:', data[7]
         print '\t\t$%d from %s (Airline: %s)' % (data[3], data[1], data[5])
         print '\t\t$%d from %s (Airline: %s)' % (data[4], data[2], data[6])
         print '\tTotal Itinerary Price: $%d' % data[8]
