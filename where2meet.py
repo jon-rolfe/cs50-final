@@ -6,14 +6,10 @@ Given two cities, calculate the optimal city to meet in.
 This file handles the core calculation logic and user input.
 """
 
-import sys
-# sys.path.append('./where2meet/')
 import os
-import requests
-import base64
-import json
 import argparse
 import signal
+import datetime
 from where2meet.database import *
 from where2meet.apirequests import *
 from dateutil.parser import parse
@@ -25,19 +21,20 @@ def main():
         description='Calculates optimal city to meet in.')
 
     cli_parse.add_argument('first_origin', action='store',
-                           help='one of the two origin cities')
+                           help='one of the two origin cities (e.g. "new york city")')
     cli_parse.add_argument('second_origin', action='store',
-                           help='the other origin city')
+                           help='the other origin city (e.g. "atlanta")')
     cli_parse.add_argument('--no-autocorrect', action='store_true', dest='skip', default=False,
                            help='skips autocorrection and verification of origins; validates against local DB')
+    cli_parse.add_argument('-f', '--fast', action='store_true',
+                           required=False, dest='fastmode', help='skip the slow-but-thorough full fare check')
     cli_parse.add_argument('-d', '--departure', action='store',
                            required=False, dest='departdate', help='specify the departure date')
     cli_parse.add_argument('-r', '--return', action='store',
                            required=False, dest='returndate', help='specify the return date (requires -d)')
-    cli_parse.add_argument('-f', '--fast', action='store_true',
-                           required=False, dest='fastmode', help='skip the slow-but-thorough full fare check')
 
     args = cli_parse.parse_args()
+
     departdate = returndate = None
     fastmode = False
     # if fast mode not specified, default to slow
@@ -74,16 +71,15 @@ def main():
         # translate names -> airports
         origin_a = suggest(args.first_origin)
         origin_b = suggest(args.second_origin)
-
-        if origin_a or origin_b == False:
+        if origin_a == False or origin_b == False:
             error('Invalid origin or destination specified.')
 
-        print 'Assuming %s meant %s (id: %s).' % (args.first_origin, origin_a[0]['name'], origin_a[0]['id'])
-        print 'Assuming %s meant %s (id: %s).' % (args.second_origin, origin_b[0]['name'], origin_b[0]['id'])
+        print 'Assuming %s meant %s (id: %s).' % (args.first_origin, origin_a['name'], origin_a['id'])
+        print 'Assuming %s meant %s (id: %s).' % (args.second_origin, origin_b['name'], origin_b['id'])
 
         # here on out, all we need is the ID portion
-        origin_a = origin_a[0]['id']
-        origin_b = origin_b[0]['id']
+        origin_a = origin_a['id']
+        origin_b = origin_b['id']
 
     # double check origins with user unless they've skipped checking
     print 'Origin A: %s\nOrigin B: %s' % (origin_a, origin_b)
@@ -182,21 +178,22 @@ def calculate(origin_a, origin_b, departdate, returndate, fastmode):
     # now: throw the query through both APIs unless user specified to only go
     # the fast route (i.e., not manually query things)
     print 'Querying the server about %s.' % origin_a
-    results_a = destinations(origin_a, departdate, returndate)
+    destinations(origin_a, departdate, returndate)
     if fastmode != True:
         fullsearch(origin_a, departdate, returndate)
 
     # repeat query for 2nd origin
     print 'Querying the server about %s.' % origin_b
-    results_b = destinations(origin_b, departdate, returndate)
+    destinations(origin_b, departdate, returndate)
     if fastmode != True:
         fullsearch(origin_a, departdate, returndate)
 
     print 'Calculating most balanced midpoint...'
-    fareslist = addpricing(origin_a, origin_b, departdate, returndate)
+    addpricing(origin_a, origin_b)
 
 
 def error(errortext):
+    """Unified error handler.  Prints passed error text and properly terminates."""
     print errortext
     closeandquit()
 

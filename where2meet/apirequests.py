@@ -4,7 +4,7 @@ API request logic for where2meet.
 
 import requests
 import base64
-import json
+# import json
 
 ENVIRONMENT = 'https://api.test.sabre.com'
 ACCESS_TOKEN = 0
@@ -39,25 +39,28 @@ def gettoken():
 def suggest(query):
     """Given a string, resolve it to possible (valid) airports."""
     # get token, make request to API to suggest correct result
-    gettoken()
+    if ACCESS_TOKEN == 0:
+        gettoken()
+    # make spaces web safe
+    query = query.replace(' ', '+')
+
     url = ENVIRONMENT + '/v1/lists/utilities/geoservices/autocomplete'
     params = {
         'query': query,
         'category': 'AIR',
-        'limit': '3'
+        'limit': '1'
     }
     header = {
         'Authorization': ('Bearer %s' % ACCESS_TOKEN),
     }
     request = requests.get(url, headers=header, params=params)
-
     # now actually act upon said data!
     data = request.json()['Response']['grouped']['category:AIR']['doclist']
 
     if data['numFound'] == 0:
         return False
 
-    return data['docs']
+    return data['docs'][0]
 
 
 def destinations(query, departdate, returndate):
@@ -75,6 +78,7 @@ def destinations(query, departdate, returndate):
         'origin': query,
         'departuredate': departdate.date(),
         'returndate': returndate.date(),
+        'topdestinations': 50,
     }
     header = {
         'Authorization': ('Bearer %s' % ACCESS_TOKEN),
@@ -98,12 +102,12 @@ def fullsearch(query, departdate, returndate):
     # get # of big airports in NA, move cursor to right pos in DB
     airportcount = numberofairports()
     movecursor('airports')
+    querynum = 0
 
     # grab next airport to look up
-    while True:
-        try:
-            destination = nextairport()
-        except TypeError:
+    while querynum < airportcount:
+        destination = nextairport()
+        if destination == False:
             break
         url = ENVIRONMENT + '/v1/shop/flights'
         params = {
@@ -123,3 +127,5 @@ def fullsearch(query, departdate, returndate):
         # if there are results, add them to the DB
         if request.status_code == 200:
             addindividualfare(data[0])
+
+        querynum = querynum + 1

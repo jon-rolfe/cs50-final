@@ -4,7 +4,7 @@
 Database logic for where2meet.
 """
 
-import json
+# import json
 import datetime
 import sqlite3
 import sys
@@ -40,7 +40,8 @@ def initdatabase():
             `fare` REAL,
             `airlinecode` TEXT,
             `departuredate` TEXT,
-            `returndate` TEXT
+            `returndate` TEXT,
+            UNIQUE (`origin`,`destination`,`fare`) ON CONFLICT IGNORE
         )
     ''')
 
@@ -85,7 +86,8 @@ def addindividualfare(data):
     origin = data['AirItinerary']['OriginDestinationOptions']['OriginDestinationOption'][
         0]['FlightSegment'][0]['DepartureAirport']['LocationCode'].encode('ascii', 'ignore')
     destination = data['AirItinerary']['OriginDestinationOptions'][
-        'OriginDestinationOption'][0]['FlightSegment'][-1]['ArrivalAirport']['LocationCode'].encode('ascii', 'ignore')
+        'OriginDestinationOption'][0]['FlightSegment'][-1]['ArrivalAirport'][
+            'LocationCode'].encode('ascii', 'ignore')
     aircode = data['TPA_Extensions']['ValidatingCarrier'][
         'Code'].encode('ascii', 'ignore')
     fare = data['AirItineraryPricingInfo']['PTC_FareBreakdowns'][
@@ -129,7 +131,7 @@ def adddestination(data, origin):
     FLIGHT_DB.commit()
 
 
-def addpricing(origin_a, origin_b, departdate, returndate):
+def addpricing(origin_a, origin_b):
     """Function that combines flights data and puts it in the 'pricing' DB."""
     # Grab all data and put it into a python object
     FLIGHT_CURSOR.execute("""
@@ -145,17 +147,17 @@ def addpricing(origin_a, origin_b, departdate, returndate):
             FROM flights
             WHERE origin = ? AND destination = ?
         """, (origin_a, row[0]))
-        check_A = FLIGHT_CURSOR.fetchone()[0]
+        check_a = FLIGHT_CURSOR.fetchone()[0]
         FLIGHT_CURSOR.execute("""
             SELECT SUM(fare)
             FROM flights
             WHERE origin = ? AND destination = ?
         """, (origin_b, row[0]))
-        check_B = FLIGHT_CURSOR.fetchone()[0]
+        check_b = FLIGHT_CURSOR.fetchone()[0]
 
         # if there's no matching pair, just go on to the next one - it's
         # effectively useless
-        if check_A is None or check_B is None:
+        if check_a is None or check_b is None:
             continue
         # otherwise, get more info about the paired flights from the DB
         else:
@@ -192,6 +194,8 @@ def addpricing(origin_a, origin_b, departdate, returndate):
 
 
 def movecursor(flag):
+    """Puts the DB cursor in the right place for other functions, so
+    further repeated calls don't have to be made."""
     if flag == 'pricing':
         FLIGHT_CURSOR.execute("""
                 SELECT * FROM pricing ORDER BY(inequality * 2 + totalprice)
@@ -205,6 +209,7 @@ def movecursor(flag):
 
 
 def validate(query):
+    """Validates an airport ID against the local airport DB."""
     AIRPORTS_CURSOR.execute("""
         SELECT * FROM airports WHERE iata_code = ?
     """, [query])
@@ -218,6 +223,7 @@ def validate(query):
 
 
 def numberofairports():
+    """Returns the total number of major North American airports."""
     AIRPORTS_CURSOR.execute("""
         SELECT COUNT(*) FROM
         (SELECT iata_code FROM airports
@@ -227,17 +233,15 @@ def numberofairports():
 
 
 def nextairport():
-    airport = ''
-    # filter out blank results
-    while airport is '':
-        airport = AIRPORTS_CURSOR.fetchone()[0].encode('iso-8859-1', 'replace')
+    """Returns the next major N.A. airport. Cursor is already set by movecursor()."""
+    airport = AIRPORTS_CURSOR.fetchone()[0].encode('iso-8859-1', 'replace')
     if airport is None:
         return False
-    return airport
+    else:
+        return airport
 
 
 def printthree():
-    from apirequests import suggest
     """Function that fetches the next 3 best fares."""
     i = 1
     while i < 4:
