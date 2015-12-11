@@ -14,7 +14,7 @@ def gettoken():
     """Gets an OAUTH2 client token for all further API requests."""
     # open file, get client id/secret, strip newline chars
     global ACCESS_TOKEN
-    apifile = open('./key')
+    apifile = open('./where2meet/key')
     client_id = apifile.readline().strip()
     client_secret = apifile.readline().strip()
     apifile.close()

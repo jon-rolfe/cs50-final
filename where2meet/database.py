@@ -9,10 +9,10 @@ import datetime
 import sqlite3
 import sys
 
-FLIGHTS_DB_NAME = '../data/flights.sqlite'
+FLIGHTS_DB_NAME = './data/flights.sqlite'
 FLIGHT_DB = sqlite3.connect(FLIGHTS_DB_NAME)
 FLIGHT_CURSOR = FLIGHT_DB.cursor()
-AIRPORTS_DB_NAME = '../data/airports.sqlite'
+AIRPORTS_DB_NAME = './data/airports.sqlite'
 AIRPORTS_DB = sqlite3.connect(AIRPORTS_DB_NAME)
 AIRPORTS_CURSOR = AIRPORTS_DB.cursor()
 

@@ -7,14 +7,15 @@ This file handles the core calculation logic and user input.
 """
 
 import sys
+# sys.path.append('./where2meet/')
 import os
 import requests
 import base64
 import json
 import argparse
 import signal
-from database import *
-from apirequests import *
+from where2meet.database import *
+from where2meet.apirequests import *
 from dateutil.parser import parse
 
 
