@@ -1,0 +1,78 @@
+THIS IS DESIGN.TXT
+
+where2meet is a relatively simple program, weighing in at around 620ish lines
+of code.  Where at all possible, I've broken code up into different functions
+and files for readability and simplicity's sake.
+
+Here's the directory structure.
+.
+├── .gitignore - (I have this project in a private repo on Github)
+├── README.md - Basic README for Github
+├── data - Directory containing databases
+│   ├── airports.sqlite - DB containing airport information
+│   └── flights.sqlite - DB containing flight information
+├── design.txt - This document. Meta, right?
+├── documentation.txt - User guide
+├── where2meet - directory containing all non-core functions
+│   ├── __init__.py - Empty file to tell Python that this is a safe directory to pull functions from!
+│   ├── apirequests.py - File containing all API call related functions.
+│   ├── database.py - File containing all SQLite/DB related functions
+│   ├── key - Developer key for the SABRE API. (You can generate your own, but I'm including mine to make your lives easier.)
+└── where2meet.py - The core file, which handles all user input and core functions.
+
+Each function also has a docstring, so I think it'd be slightly silly for me to
+state what each individual function does.  I've also used pylint to try to make
+the code as readable as possible. The only useful information, IMO, that I can
+give in text here is the design flow.  So let's talk about it.
+
+First, argparse is used to parse command line input. Said input is then
+validated, because there's no point wasting cycles on data that we're going
+to reject anyway.
+If the --no-autocorrect flag is set, then the two origins specified by the user
+will be checked against the local airports DB.  If not, then it will be passed
+off to the suggest() function in apirequests.py, which will then call for an
+OAUTH2-style sessionless token to be pulled from the SABRE REST API.
+After the authentication token is generated, the SABRE autocorrect API is
+queried to try to translate the user's input into valid airports. This is done
+because most people don't know airport codes, only cities.
+Next, the datetime parse() function is used to translate user depart and return
+date input into something we can actually work with.
+
+Now, to the meat of the data-obtaining.
+There are two APIs used by default in calculating the "midpoint" city: the
+SABRE destination finder API, which returns a list of 50 most popular
+destinations from an airport and their fares; and the SABRE InstaSearch API,
+which (as I've set it up) returns the lowest fare between $origin and
+$midpoint. The list of midpoints to check against is pulled from the airports
+DB.  SQLite cursor "scrolling" is used a lot here, because it's way more
+efficient to do that than to make new SQLite queries for each and every
+new airport/fare/whatever.  All data is stored into a table in flights.sqlite
+called `flights`.  The individual (~340 per run) InstaSearch queries take
+a minute or two--sometimes more, sometimes less. It depends on your connection.
+
+All of this wonderful flight data is then fed into a different table, `pricing`
+in flights.sqlite.  This table includes, amongst other things, the individual
+fares for each origina-originb-destination group and the difference in price
+between the fare from origin a <-> midpoint and origin b <-> midpoint.
+
+At this point, we have all the information we need to figure out what midpoints
+we want to recommend.  The DB is then queried to return rows from the pricing
+table in ascending order on the grounds of (inequality*2 + totalprice).
+This remarkably simple (but effective) method of ordering the results biases
+the results towards preferring lower inequality values, all the while keeping
+the ideal of a lower fare in mind.  If the user wants more possible
+destinations, they can keep receiving more results, 3 at a time until we hit
+the end of the pricing table (which happens when there are no more fare pairs
+for origin a <-> destination and origin b <-> destination.)
+
+Some logistical notes:
+- I got the github educational pack and put/constantly updated this project
+in a private Github repo.
+- The first few commits were done through the CS50 IDE, and all others were
+done using Github for Mac + the Github text editor, Atom. (It's... actually
+surprisingly good. I've been a SublimeText user, but Atom has so many
+shiny features...)
+
+
+Without further ado,
+THIS WAS DESIGN.TXT
