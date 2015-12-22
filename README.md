@@ -6,11 +6,13 @@ should meet in using air travel.
 Welcome to the wonderful world of where2meet's documentation!
 (For program design info, check out design.txt)
 
-# INSTALLATION
+# Installation
 
 where2meet is written in Python 2.7; as such, you need to have Python 2.7
 downloaded and installed.  Python can be downloaded at:
+
 https://www.python.org/downloads/
+
 (Click "Download Python 2.7.11")
 
 If you do not have the latest version of Python installed, where2meet will
@@ -19,7 +21,9 @@ probably break in fun and interesting ways.
 Once you have Python installed, where2meet relies on an excellently designed
 HTTP-magic module called "Requests."  Installation instructions can be found
 here:
+
 http://docs.python-requests.org/en/latest/user/install/#install
+
 (Python 2.7.11 comes with "pip", a python package manager.)
 
 Once you've done this, you'll need a free SABRE developer account. SABRE is
@@ -27,6 +31,7 @@ the flight fare data provider used in where2meet, and without it... well,
 the program won't be able to do much!
 
 To get a key, go to:
+
 https://developer.sabre.com/member/register
 
 The username and application name can be whatever you want; I recommend making
@@ -35,19 +40,20 @@ it "where2meet," but I'm something of a biased source.
 Once you've registered and confirmed your email, log in and mosey on over to
 "my account," where you should see something like:
 
-Flights API Key: V1:abcd1234abcd1234:DEVCENTER:EXT
+> Flights API Key: V1:abcd1234abcd1234:DEVCENTER:EXT
 
 Make a new text file under the /where2meet/ subdirectory called "key". Then,
 put the key on the first line and the shared secret on the second. It should
 end up looking like this:
 
+```
 V1:abcd1234abcd1234:DEVCENTER:EXT
-
 aBcD234f
+```
 
 Then you should be good!
 
-# USAGE
+# Usage
 
 Open up terminal (or command prompt) and navigate to the directory this
 file (documentation.txt) is in.
@@ -73,7 +79,7 @@ Finally, it will ask you for a valid departure and return date.
 And then the ~magic~ will happen!  Unless you specified the '-f' switch,
 it will take about a minute to fetch results from the server.
 
-# RESULTS
+# Results
 
 Assuming midpoints could be found, you'll be presented with something
 like this:
@@ -93,7 +99,9 @@ has the name and ID of the midpoint airport (here, Chicago O'Hare and ORD
 respectively), followed by details on fares for both parties and the
 codes of their airlines.  When not obvious (e.g., "F9"), airline codes can
 be decoded into airline names here:
+
 http://www.iata.org/publications/Pages/code-search.aspx
+
 ("F9" maps to "Frontier Airlines" and "NK" maps to "Spirit Airlines")
 
 Finally, the total itinerary price and the difference in the two fares
@@ -101,7 +109,7 @@ is listed.  Hopefully this will allow you to make an informed and fair
 decision as to where you and your friend/colleague/associate/random person
 you met on the internet should meet!
 
-# THE BIG KNOWN ISSUE
+# The Big Known Issue
 
 where2meet was designed around the wonderfully complex, detailed, and well-
 documented SABRE API.  Developer keys can be obtained for free.  After
@@ -125,10 +133,20 @@ Hopefully SABRE will give me a free production key, making this entire section
 moot.  But until then... this is the biggest caveat of using where2meet in
 the real world.
 
-# THANKS WHERE DUE
+# Thanks Where Due
 
 Complete credit for the airports DB should be given to OurAirports.com, who do a
 great job compiling airport information (and release it into the public
 domain!).
-And complete credit for the flight data itself goes to SABRE, who graciously
-allow developers free (if somewhat limited) access
+
+Additionally: complete credit for the flight data itself goes to SABRE, who
+graciously allow developers free (if somewhat limited) access.
+
+And, of course: thank you to the whole CS50 staff. It was a great class and
+wonderful experience; plopping me right into the thick of things is the best
+way to learn, methinks :)
+
+And, dear reader: thanks for checking out my project! If you want more info
+about who I am, visit my Github pages website at:
+
+http://jon-rolfe.github.io
