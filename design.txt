@@ -6,24 +6,23 @@ and files for readability and simplicity's sake.
 
 Here's the directory structure.
 .
-├── .gitignore - (I have this project in a private repo on Github)
-├── README.md - Basic README for Github
+├── .gitignore
+├── README.md - Documentation galore!
 ├── data - Directory containing databases
 │   ├── airports.sqlite - DB containing airport information
 │   └── flights.sqlite - DB containing flight information
 ├── design.txt - This document. Meta, right?
-├── documentation.txt - User guide
 ├── where2meet - directory containing all non-core functions
 │   ├── __init__.py - Empty file to tell Python that this is a safe directory to pull functions from!
 │   ├── apirequests.py - File containing all API call related functions.
 │   ├── database.py - File containing all SQLite/DB related functions
-│   ├── key - Developer key for the SABRE API. (You can generate your own, but I'm including mine to make your lives easier.)
+│   ├── key - Developer key for the SABRE API. (Read the documentation!)
 └── where2meet.py - The core file, which handles all user input and core functions.
 
-Each function also has a docstring, so I think it'd be slightly silly for me to
-state what each individual function does.  I've also used pylint to try to make
-the code as readable as possible. The only useful information, IMO, that I can
-give in text here is the design flow.  So let's talk about it.
+Each function has a docstring, so I think it'd be slightly silly for me to
+restate here what each individual function does.  I've used pylint to try to
+make the code as readable as possible. The only useful information IMO that I
+can give here is the design flow.  So let's get to it!
 
 First, argparse is used to parse command line input. Said input is then
 validated, because there's no point wasting cycles on data that we're going
