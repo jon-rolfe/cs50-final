@@ -192,12 +192,6 @@ def calculate(origin_a, origin_b, departdate, returndate, fastmode):
     addpricing(origin_a, origin_b)
 
 
-def error(errortext):
-    """Unified error handler.  Prints passed error text and properly terminates."""
-    print errortext
-    closeandquit()
-
-
 if __name__ == "__main__":
     # make a SIGINT handler for ctrl-c, etc
     signal.signal(signal.SIGINT, closeandquit)

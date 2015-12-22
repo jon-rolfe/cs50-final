@@ -12,9 +12,12 @@ ACCESS_TOKEN = 0
 
 def gettoken():
     """Gets an OAUTH2 client token for all further API requests."""
-    # open file, get client id/secret, strip newline chars
     global ACCESS_TOKEN
-    apifile = open('./where2meet/key')
+    # check for presence of API key file
+    try:
+        apifile = open('./where2meet/key')
+    except IOError:
+        error('Key file not found. Please consult the documentation!')
     client_id = apifile.readline().strip()
     client_secret = apifile.readline().strip()
     apifile.close()
@@ -32,6 +35,10 @@ def gettoken():
     }
     payload = 'grant_type=client_credentials'
     request = requests.post(url, headers=auth, data=payload)
+    if request.status_code != 200:
+        error('Key file is wrongly formatted or incorrectly entered.\n'
+              'Please consult the documentation and fix it.')
+
     data = request.json()
     ACCESS_TOKEN = data['access_token']
 
@@ -54,6 +61,11 @@ def suggest(query):
         'Authorization': ('Bearer %s' % ACCESS_TOKEN),
     }
     request = requests.get(url, headers=header, params=params)
+
+    # error handling
+    if request.status_code != 200:
+        error('The SABRE API has returned a bad response. Please try re-running.')
+
     # now actually act upon said data!
     data = request.json()['Response']['grouped']['category:AIR']['doclist']
 
@@ -84,6 +96,11 @@ def destinations(query, departdate, returndate):
         'Authorization': ('Bearer %s' % ACCESS_TOKEN),
     }
     request = requests.get(url, headers=header, params=params)
+
+    # error handling once more
+    if request.status_code != 200:
+        error('The SABRE API has returned a bad response. Please try re-running.')
+
     data = (request.json()).get('FareInfo')
     if data is None:
         return False
@@ -129,3 +146,10 @@ def fullsearch(query, departdate, returndate):
             addindividualfare(data[0])
 
         querynum = querynum + 1
+
+
+def error(errortext):
+    """Unified error handler.  Prints passed error text and properly terminates."""
+    from database import closeandquit
+    print errortext
+    closeandquit()
