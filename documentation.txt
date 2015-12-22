@@ -15,6 +15,28 @@ here:
 http://docs.python-requests.org/en/latest/user/install/#install
 (Python 2.7.11 comes with "pip", a python package manager.)
 
+Once you've done this, you'll need a free SABRE developer account. SABRE is
+the flight fare data provider used in where2meet, and without it... well,
+the program won't be able to do much!
+
+To get a key, go to:
+https://developer.sabre.com/member/register
+
+The username and application name can be whatever you want; I recommend making
+it "where2meet," but I'm something of a biased source.
+
+Once you've registered and confirmed your email, log in and mosey on over to
+"my account," where you should see something like:
+Flights API Key: V1:abcd1234abcd1234:DEVCENTER:EXT
+
+Make a new text file under the /where2meet/ subdirectory called "key". Then,
+put the key on the first line and the shared secret on the second. It should
+end up looking like this:
+V1:abcd1234abcd1234:DEVCENTER:EXT
+aBcD234f
+
+Then you should be good!
+
 === USAGE ===
 Open up terminal (or command prompt) and navigate to the directory this
 file (documentation.txt) is in.
