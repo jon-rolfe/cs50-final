@@ -6,7 +6,7 @@ should meet in using air travel.
 Welcome to the wonderful world of where2meet's documentation!
 (For program design info, check out design.txt)
 
-=== INSTALLATION ===
+# INSTALLATION
 
 where2meet is written in Python 2.7; as such, you need to have Python 2.7
 downloaded and installed.  Python can be downloaded at:
@@ -47,7 +47,7 @@ aBcD234f
 
 Then you should be good!
 
-=== USAGE ===
+# USAGE
 
 Open up terminal (or command prompt) and navigate to the directory this
 file (documentation.txt) is in.
@@ -73,19 +73,20 @@ Finally, it will ask you for a valid departure and return date.
 And then the ~magic~ will happen!  Unless you specified the '-f' switch,
 it will take about a minute to fetch results from the server.
 
-=== RESULTS ===
+# RESULTS
 
 Assuming midpoints could be found, you'll be presented with something
 like this:
 
->Destination #2:
->        Name: Chicago O'Hare International Airport
->        Airport ID: ORD
->                $106 from LGA (Airline: NK)
->                $78 from ATL (Airline: F9)
->        Total Itinerary Price: $184
->        Inequality of Fares: $28
-
+```
+Destination #2:
+        Name: Chicago O'Hare International Airport
+        Airport ID: ORD
+                $106 from LGA (Airline: NK)
+                $78 from ATL (Airline: F9)
+        Total Itinerary Price: $184
+        Inequality of Fares: $28
+```
 
 There will be up to 3 destinations listed at a time.  Each destination
 has the name and ID of the midpoint airport (here, Chicago O'Hare and ORD
@@ -100,7 +101,7 @@ is listed.  Hopefully this will allow you to make an informed and fair
 decision as to where you and your friend/colleague/associate/random person
 you met on the internet should meet!
 
-=== THE BIG KNOWN ISSUE ===
+# THE BIG KNOWN ISSUE
 
 where2meet was designed around the wonderfully complex, detailed, and well-
 documented SABRE API.  Developer keys can be obtained for free.  After
@@ -124,7 +125,7 @@ Hopefully SABRE will give me a free production key, making this entire section
 moot.  But until then... this is the biggest caveat of using where2meet in
 the real world.
 
-=== THANKS WHERE DUE ===
+# THANKS WHERE DUE
 
 Complete credit for the airports DB should be given to OurAirports.com, who do a
 great job compiling airport information (and release it into the public
