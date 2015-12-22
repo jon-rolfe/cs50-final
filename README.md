@@ -34,12 +34,15 @@ it "where2meet," but I'm something of a biased source.
 
 Once you've registered and confirmed your email, log in and mosey on over to
 "my account," where you should see something like:
+
 Flights API Key: V1:abcd1234abcd1234:DEVCENTER:EXT
 
 Make a new text file under the /where2meet/ subdirectory called "key". Then,
 put the key on the first line and the shared secret on the second. It should
 end up looking like this:
+
 V1:abcd1234abcd1234:DEVCENTER:EXT
+
 aBcD234f
 
 Then you should be good!
@@ -74,15 +77,15 @@ it will take about a minute to fetch results from the server.
 
 Assuming midpoints could be found, you'll be presented with something
 like this:
---
-Destination #2:
-        Name: Chicago O'Hare International Airport
-        Airport ID: ORD
-                $106 from LGA (Airline: NK)
-                $78 from ATL (Airline: F9)
-        Total Itinerary Price: $184
-        Inequality of Fares: $28
---
+
+>Destination #2:
+>        Name: Chicago O'Hare International Airport
+>        Airport ID: ORD
+>                $106 from LGA (Airline: NK)
+>                $78 from ATL (Airline: F9)
+>        Total Itinerary Price: $184
+>        Inequality of Fares: $28
+
 
 There will be up to 3 destinations listed at a time.  Each destination
 has the name and ID of the midpoint airport (here, Chicago O'Hare and ORD
