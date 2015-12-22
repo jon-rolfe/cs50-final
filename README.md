@@ -7,6 +7,7 @@ Welcome to the wonderful world of where2meet's documentation!
 (For program design info, check out design.txt)
 
 === INSTALLATION ===
+
 where2meet is written in Python 2.7; as such, you need to have Python 2.7
 downloaded and installed.  Python can be downloaded at:
 https://www.python.org/downloads/
@@ -44,6 +45,7 @@ aBcD234f
 Then you should be good!
 
 === USAGE ===
+
 Open up terminal (or command prompt) and navigate to the directory this
 file (documentation.txt) is in.
 
@@ -69,6 +71,7 @@ And then the ~magic~ will happen!  Unless you specified the '-f' switch,
 it will take about a minute to fetch results from the server.
 
 === RESULTS ===
+
 Assuming midpoints could be found, you'll be presented with something
 like this:
 --
@@ -95,6 +98,7 @@ decision as to where you and your friend/colleague/associate/random person
 you met on the internet should meet!
 
 === THE BIG KNOWN ISSUE ===
+
 where2meet was designed around the wonderfully complex, detailed, and well-
 documented SABRE API.  Developer keys can be obtained for free.  After
 extensive research, I found the SABRE development API to be pretty much
@@ -118,6 +122,7 @@ moot.  But until then... this is the biggest caveat of using where2meet in
 the real world.
 
 === THANKS WHERE DUE ===
+
 Complete credit for the airports DB should be given to OurAirports.com, who do a
 great job compiling airport information (and release it into the public
 domain!).
